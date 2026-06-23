@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Dashboard - Asset Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#004ac6',
+                        'primary-container': '#2563eb',
+                        'on-primary': '#ffffff',
+                        'on-primary-container': '#eeefff',
+                        'primary-fixed': '#dbe1ff',
+                        'primary-fixed-dim': '#b4c5ff',
+                        'on-primary-fixed': '#00174b',
+                        'on-primary-fixed-variant': '#003ea8',
+                        'secondary': '#4648d4',
+                        'secondary-container': '#6063ee',
+                        'on-secondary': '#ffffff',
+                        'on-secondary-container': '#fffbff',
+                        'secondary-fixed': '#e1e0ff',
+                        'secondary-fixed-dim': '#c0c1ff',
+                        'on-secondary-fixed': '#07006c',
+                        'on-secondary-fixed-variant': '#2f2ebe',
+                        'tertiary': '#4d556b',
+                        'tertiary-container': '#656d84',
+                        'on-tertiary': '#ffffff',
+                        'on-tertiary-container': '#eef0ff',
+                        'tertiary-fixed': '#dae2fd',
+                        'tertiary-fixed-dim': '#bec6e0',
+                        'on-tertiary-fixed': '#131b2e',
+                        'on-tertiary-fixed-variant': '#3f465c',
+                        'error': '#ba1a1a',
+                        'error-container': '#ffdad6',
+                        'on-error': '#ffffff',
+                        'on-error-container': '#93000a',
+                        'background': '#f7f9fb',
+                        'on-background': '#191c1e',
+                        'surface': '#f7f9fb',
+                        'on-surface': '#191c1e',
+                        'surface-dim': '#d8dadc',
+                        'surface-bright': '#f7f9fb',
+                        'surface-container-lowest': '#ffffff',
+                        'surface-container-low': '#f2f4f6',
+                        'surface-container': '#eceef0',
+                        'surface-container-high': '#e6e8ea',
+                        'surface-container-highest': '#e0e3e5',
+                        'surface-variant': '#e0e3e5',
+                        'on-surface-variant': '#434655',
+                        'surface-tint': '#0053db',
+                        'outline': '#737686',
+                        'outline-variant': '#c3c6d7',
+                        'inverse-surface': '#2d3133',
+                        'inverse-on-surface': '#eff1f3',
+                        'inverse-primary': '#b4c5ff',
+                        'success-emerald': '#10B981',
+                        'warning-amber': '#F59E0B',
+                        'critical-rose': '#E11D48',
+                        'indigo-accent': '#4F46E5',
+                        'slate-surface': '#1E293B'
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="js/theme.js"></script>
+    <style>
+        /* Light mode (default) */
+        body {
+            background-color: #f7f9fb;
+            color: #191c1e;
+            font-family: 'Inter', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e6e8ea;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3c6d7;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737686;
+        }
+
+        /* Dark mode - harmonized colors */
+        html.dark body {
+            background-color: #0F172A;
+            color: #F8FAFC;
+        }
+        html.dark ::-webkit-scrollbar-track {
+            background: #1E293B;
+        }
+        html.dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        html.dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748B;
+        }
+
+        /* === FLUID ANIMATIONS & TRANSITIONS (Optimized) === */
+        body { animation: pageFadeIn 0.3s ease-out; }
+        @keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        button, a { transition: transform 0.15s ease-out, opacity 0.15s ease-out, background-color 0.15s ease-out; }
+        button:hover { transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        nav a { transition: transform 0.2s ease-out, color 0.2s ease-out; }
+        nav a:hover { transform: translateX(4px); }
+        tbody tr { transition: background-color 0.15s ease-out; }
+        input, select, textarea { transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out; }
+
+        /* === CIRCULAR REVEAL THEME TRANSITION === */
+        
+        /* View Transitions API (Chrome 111+, Edge 111+) */
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation-duration: 0.5s;
+            animation-timing-function: ease-in-out;
+        }
+
+        /* Custom circular reveal overlay (Firefox, Safari fallback) */
+        .theme-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Circular reveal animation */
+        @keyframes circularReveal {
+            from {
+                clip-path: circle(0% at var(--x) var(--y));
+            }
+            to {
+                clip-path: circle(var(--end-radius) at var(--x) var(--y));
+            }
+        }
+
+        /* Prevent interaction during theme transition */
+        body.theme-transitioning {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="antialiased overflow-hidden">
+    <!-- App Container -->
+    <div class="flex h-screen w-full relative">
+        <!-- SideNavBar -->
+        <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface dark:bg-slate-surface border-r border-outline-variant dark:border-slate-700 fixed left-0 top-0 w-[280px] z-20">
+            <!-- Brand -->
+            <div class="mb-8 flex items-center space-x-3 px-3">
+                <div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-on-primary-container">science</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-primary dark:text-blue-400 leading-none">Asset</h1>
+                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">Management System</p>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex-1 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li>
+                        <a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="dashboard.html">
+                            <span class="material-symbols-outlined">dashboard</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700 hover:text-on-surface dark:hover:text-white transition-colors" href="inventory.html">
+                            <span class="material-symbols-outlined">inventory_2</span>
+                            <span>Inventory</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700 hover:text-on-surface dark:hover:text-white transition-colors" href="consumables.html">
+                            <span class="material-symbols-outlined">category</span>
+                            <span>Consumables</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700 hover:text-on-surface dark:hover:text-white transition-colors" href="loans.html">
+                            <span class="material-symbols-outlined">swap_horiz</span>
+                            <span>Loans</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700 hover:text-on-surface dark:hover:text-white transition-colors" href="cannibalization.html">
+                            <span class="material-symbols-outlined">build_circle</span>
+                            <span>Cannibalization</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700 hover:text-on-surface dark:hover:text-white transition-colors" href="analytics.html">
+                            <span class="material-symbols-outlined">analytics</span>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- User Profile -->
+            <div class="mt-auto pt-6 border-t border-outline-variant dark:border-slate-700">
+                <div class="flex items-center space-x-3 px-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                        <span id="user-initials">U</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-on-surface dark:text-white truncate" id="user-name">Loading...</p>
+                        <p class="text-xs text-on-surface-variant dark:text-gray-400" id="user-role">-</p>
+                    </div>
+                </div>
+                <button onclick="handleLogout()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700 hover:text-on-surface dark:hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col md:ml-[280px] h-screen overflow-hidden">
+            <!-- TopNavBar -->
+            <header class="flex items-center justify-between px-8 w-full h-16 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700 shrink-0 z-10 sticky top-0">
+                <h2 class="text-xl font-semibold text-on-surface dark:text-white">Dashboard</h2>
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleThemeWithAnimation(event)" id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
+                        <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                        <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                    </button>
+                    <button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Canvas -->
+            <main class="flex-1 overflow-y-auto p-8 bg-background dark:bg-[#0F172A]">
+                <div class="max-w-7xl mx-auto space-y-8">
+                    <!-- Welcome Banner -->
+                    <div>
+                        <h2 class="text-3xl font-bold text-on-surface dark:text-white">Welcome back, <span id="welcome-name">User</span>.</h2>
+                        <p class="text-on-surface-variant dark:text-gray-400 mt-2">Here is the current status of the Asset Management System.</p>
+                    </div>
+
+                    <!-- Metrics Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="metrics-grid">
+                        <!-- Loading state -->
+                        <div class="col-span-4 text-center py-12">
+                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-blue-500 mx-auto"></div>
+                            <p class="text-on-surface-variant dark:text-gray-400 mt-4">Loading dashboard...</p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl overflow-hidden">
+                        <div class="p-6 border-b border-outline-variant dark:border-slate-700 flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-on-surface dark:text-white">Recent Activity</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-surface-container dark:bg-slate-900 border-b border-outline-variant dark:border-slate-700">
+                                        <th class="p-4 text-sm font-semibold text-on-surface-variant dark:text-gray-400">Type</th>
+                                        <th class="p-4 text-sm font-semibold text-on-surface-variant dark:text-gray-400">Details</th>
+                                        <th class="p-4 text-sm font-semibold text-on-surface-variant dark:text-gray-400">User</th>
+                                        <th class="p-4 text-sm font-semibold text-on-surface-variant dark:text-gray-400">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activity-tbody" class="text-on-surface dark:text-white divide-y divide-outline-variant dark:divide-slate-700">
+                                    <!-- Loading -->
+                                    <tr>
+                                        <td colspan="4" class="p-8 text-center text-on-surface-variant dark:text-gray-400">
+                                            <div class="animate-pulse">Loading activity...</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        // Check authentication
+        if (!requireAuth()) {
+            window.location.href = 'login.html';
+        }
+
+        // Load user info
+        const currentUser = api.getCurrentUser();
+        if (currentUser) {
+            document.getElementById('user-name').textContent = currentUser.full_name;
+            document.getElementById('user-role').textContent = currentUser.role.toUpperCase();
+            document.getElementById('welcome-name').textContent = currentUser.full_name;
+            document.getElementById('user-initials').textContent = currentUser.full_name.split(' ').map(n => n[0]).join('');
+        }
+
+        // Logout handler
+        function handleLogout() {
+            try {
+                if (confirm('Are you sure you want to logout?')) {
+                    console.log('Logging out...');
+                    api.auth.logout();
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Fallback logout
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Make sure function is globally accessible
+        window.handleLogout = handleLogout;
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                const data = await api.analytics.getDashboard();
+                
+                // Render metrics
+                renderMetrics(data);
+                
+                // Render recent activity
+                renderActivity(data.recent_activity);
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+                showToast('Failed to load dashboard data', 'error');
+            }
+        }
+
+        function renderMetrics(data) {
+            const { inventory, loans, consumables } = data;
+            
+            const metricsHTML = `
+                <!-- Total Assets -->
+                <div class="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 border-t-4 border-t-primary">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary dark:text-blue-400">
+                            <span class="material-symbols-outlined">inventory_2</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-on-surface dark:text-white">${inventory.total || 0}</h3>
+                        <p class="text-sm text-on-surface-variant dark:text-gray-400 uppercase tracking-wider mt-1">Total Assets</p>
+                    </div>
+                </div>
+
+                <!-- Low Stock -->
+                <div class="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 border-t-4 border-t-warning-amber">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-warning-amber/10 flex items-center justify-center text-warning-amber">
+                            <span class="material-symbols-outlined">warning</span>
+                        </div>
+                        ${consumables.low_stock_count > 0 ? '<span class="text-xs px-2 py-1 rounded bg-critical-rose/20 text-critical-rose">Action Req</span>' : ''}
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-on-surface dark:text-white">${consumables.low_stock_count || 0}</h3>
+                        <p class="text-sm text-on-surface-variant dark:text-gray-400 uppercase tracking-wider mt-1">Low Consumables</p>
+                    </div>
+                </div>
+
+                <!-- Active Loans -->
+                <div class="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 border-t-4 border-t-indigo-accent">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-accent/10 flex items-center justify-center text-indigo-accent">
+                            <span class="material-symbols-outlined">swap_horiz</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-on-surface dark:text-white">${loans.active || 0}</h3>
+                        <p class="text-sm text-on-surface-variant dark:text-gray-400 uppercase tracking-wider mt-1">Active Loans</p>
+                    </div>
+                </div>
+
+                <!-- Overdue -->
+                <div class="bg-surface-container-lowest dark:bg-slate-800 p-6 rounded-xl border border-outline-variant dark:border-slate-700 border-t-4 border-t-critical-rose">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-critical-rose/10 flex items-center justify-center text-critical-rose">
+                            <span class="material-symbols-outlined">error</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-on-surface dark:text-white">${loans.overdue || 0}</h3>
+                        <p class="text-sm text-on-surface-variant dark:text-gray-400 uppercase tracking-wider mt-1">Overdue Loans</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('metrics-grid').innerHTML = metricsHTML;
+        }
+
+        function renderActivity(activities) {
+            if (!activities || activities.length === 0) {
+                document.getElementById('activity-tbody').innerHTML = `
+                    <tr><td colspan="4" class="p-8 text-center text-on-surface-variant dark:text-gray-400">No recent activity</td></tr>
+                `;
+                return;
+            }
+
+            const activityHTML = activities.map(activity => `
+                <tr class="hover:bg-surface-container-low dark:hover:bg-slate-700/50 transition-colors">
+                    <td class="p-4">
+                        <span class="inline-flex items-center gap-2 px-2 py-1 rounded bg-primary/20 dark:bg-blue-500/20 text-primary dark:text-blue-400 text-sm">
+                            <span class="material-symbols-outlined text-sm">bolt</span>
+                            ${activity.action_type}
+                        </span>
+                    </td>
+                    <td class="p-4 text-sm text-on-surface dark:text-white">${activity.details || '-'}</td>
+                    <td class="p-4 text-sm text-on-surface dark:text-white">${activity.user_name || 'System'}</td>
+                    <td class="p-4 text-sm text-on-surface-variant dark:text-gray-400">${formatDate(activity.created_at)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('activity-tbody').innerHTML = activityHTML;
+        }
+
+        // Load data on page load
+        loadDashboard();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+</html>

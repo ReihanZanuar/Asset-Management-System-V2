@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Cannibalization - Asset Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#004ac6', 'primary-container': '#2563eb', 'on-primary': '#ffffff',
+                        'on-primary-container': '#eeefff', 'background': '#f7f9fb', 'on-background': '#191c1e',
+                        'surface': '#f7f9fb', 'on-surface': '#191c1e', 'surface-container-lowest': '#ffffff',
+                        'surface-container-low': '#f2f4f6', 'surface-container': '#eceef0',
+                        'surface-container-high': '#e6e8ea', 'on-surface-variant': '#434655',
+                        'outline': '#737686', 'outline-variant': '#c3c6d7',
+                        'success-emerald': '#10B981', 'warning-amber': '#F59E0B',
+                        'critical-rose': '#E11D48', 'indigo-accent': '#4F46E5', 'slate-surface': '#1E293B'
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="js/theme.js"></script>
+    <style>
+        body { background-color: #f7f9fb; color: #191c1e; font-family: 'Inter', sans-serif; }
+        html.dark body { background-color: #0F172A; color: #F8FAFC; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e6e8ea; }
+        html.dark ::-webkit-scrollbar-track { background: #1E293B; }
+        ::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 4px; }
+        html.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* === FLUID ANIMATIONS & TRANSITIONS (Optimized) === */
+        body { animation: pageFadeIn 0.3s ease-out; }
+        @keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        button, a { transition: transform 0.15s ease-out, opacity 0.15s ease-out, background-color 0.15s ease-out; }
+        button:hover { transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        nav a { transition: transform 0.2s ease-out, color 0.2s ease-out; }
+        nav a:hover { transform: translateX(4px); }
+        tbody tr { transition: background-color 0.15s ease-out; }
+        input, select, textarea { transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out; }
+
+        /* === CIRCULAR REVEAL THEME TRANSITION === */
+        ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.5s; animation-timing-function: ease-in-out; }
+        .theme-transition-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+        @keyframes circularReveal { from { clip-path: circle(0% at var(--x) var(--y)); } to { clip-path: circle(var(--end-radius) at var(--x) var(--y)); } }
+        body.theme-transitioning { pointer-events: none; }
+    </style>
+</head>
+<body class="antialiased overflow-hidden">
+    <div class="flex h-screen w-full relative">
+        <!-- Sidebar -->
+        <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface dark:bg-slate-surface border-r border-outline-variant dark:border-slate-700 fixed left-0 top-0 w-[280px] z-20">
+            <div class="mb-8 flex items-center space-x-3 px-3">
+                <div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">science</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-primary dark:text-blue-400">Asset</h1>
+                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">Management System</p>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="dashboard.html">
+                        <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="inventory.html">
+                        <span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="consumables.html">
+                        <span class="material-symbols-outlined">category</span><span>Consumables</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="loans.html">
+                        <span class="material-symbols-outlined">swap_horiz</span><span>Loans</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="cannibalization.html">
+                        <span class="material-symbols-outlined">build_circle</span><span>Cannibalization</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="analytics.html">
+                        <span class="material-symbols-outlined">bar_chart</span><span>Analytics</span></a></li>
+                </ul>
+            </div>
+            <div class="mt-auto pt-6 border-t border-outline-variant dark:border-slate-700">
+                <button onclick="api.auth.logout()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700">
+                    <span class="material-symbols-outlined">logout</span><span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col md:ml-[280px] h-screen overflow-hidden">
+            <header class="flex items-center justify-between px-8 h-16 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700">
+                <h2 class="text-xl font-semibold text-on-surface dark:text-white">Cannibalization Logs</h2>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleThemeWithAnimation(event)" id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
+                        <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                        <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                    </button>
+                    <button onclick="showAddModal()" class="px-4 py-2 bg-primary-container hover:bg-primary text-white rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        Add Log
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-8 bg-background dark:bg-[#0F172A]">
+                <!-- Info Card -->
+                <div class="mb-6 p-4 bg-primary-container/10 dark:bg-blue-500/10 border border-primary-container/50 dark:border-blue-500/50 rounded-lg flex items-start gap-3">
+                    <span class="material-symbols-outlined text-primary dark:text-blue-400">info</span>
+                    <div class="flex-1">
+                        <p class="text-primary dark:text-blue-400 font-semibold">Component Harvesting Log</p>
+                        <p class="text-sm text-on-surface-variant dark:text-gray-400 mt-1">Track components taken from damaged equipment and used to repair other items.</p>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 overflow-x-auto">
+                    <table class="w-full min-w-max">
+                        <thead class="bg-surface-container dark:bg-slate-900 border-b border-outline-variant dark:border-slate-700">
+                            <tr>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Date</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Source Item</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Component</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Destination Item</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Qty</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Performed By</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-tbody" class="divide-y divide-outline-variant dark:divide-slate-700">
+                            <tr><td colspan="7" class="p-8 text-center text-on-surface-variant dark:text-gray-400">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Log Modal -->
+    <div id="log-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto border border-outline-variant dark:border-slate-700">
+            <h3 class="text-xl font-bold text-on-surface dark:text-white mb-4">Add Cannibalization Log</h3>
+            <form id="log-form" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Source Inventory*</label>
+                        <select id="source-inventory" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                            <option value="">Select damaged/maintenance item...</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Component Name*</label>
+                        <input type="text" id="component-name" required placeholder="e.g., RAM 8GB DDR4, Power Supply 500W" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Destination Inventory</label>
+                        <select id="dest-inventory" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                            <option value="">Select item to repair (optional)...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Quantity*</label>
+                        <input type="number" id="quantity" required value="1" min="1" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Date*</label>
+                        <input type="date" id="date" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Reason*</label>
+                        <textarea id="reason" required rows="2" placeholder="Why was this component harvested?" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white"></textarea>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Notes</label>
+                        <textarea id="notes" rows="2" placeholder="Additional notes (optional)" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white"></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 py-2 bg-primary-container hover:bg-primary text-white rounded">Save Log</button>
+                    <button type="button" onclick="hideModal()" class="px-6 py-2 bg-surface-container-high dark:bg-slate-700 hover:bg-surface-container dark:hover:bg-slate-600 text-on-surface dark:text-white rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        if (!requireAuth()) location.href = 'login.html';
+
+        let currentData = [];
+        let inventoryItems = [];
+
+        // Load inventory for dropdowns
+        async function loadInventoryItems() {
+            try {
+                inventoryItems = await api.inventory.getAll();
+            } catch (error) {
+                console.error('Failed to load inventory:', error);
+            }
+        }
+
+        // Load cannibalization logs
+        async function loadLogs() {
+            try {
+                currentData = await api.cannibalization.getAll();
+                renderTable(currentData);
+            } catch (error) {
+                showToast('Failed to load logs', 'error');
+            }
+        }
+
+        function renderTable(logs) {
+            const tbody = document.getElementById('logs-tbody');
+            if (!logs.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-on-surface-variant dark:text-gray-400">No cannibalization logs found. Click "Add Log" to create one.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = logs.map(log => {
+                const date = new Date(log.date).toLocaleDateString();
+                return `
+                    <tr class="text-on-surface dark:text-white hover:bg-surface-container-low dark:hover:bg-slate-700/50">
+                        <td class="p-4 text-sm">${date}</td>
+                        <td class="p-4">
+                            <div class="font-medium">${log.source_item_name || log.source_name || '-'}</div>
+                            <div class="text-xs text-on-surface-variant dark:text-gray-400">${log.source_code || ''}</div>
+                        </td>
+                        <td class="p-4 font-medium text-primary dark:text-blue-400">${log.component_name}</td>
+                        <td class="p-4">
+                            <div class="font-medium">${log.destination_item_name || log.dest_name || 'Storage'}</div>
+                            <div class="text-xs text-on-surface-variant dark:text-gray-400">${log.dest_code || ''}</div>
+                        </td>
+                        <td class="p-4 text-sm">${log.quantity}</td>
+                        <td class="p-4 text-sm text-on-surface-variant dark:text-gray-400">${log.performed_by_name || 'Unknown'}</td>
+                        <td class="p-4">
+                            <button onclick="deleteLog(${log.id})" class="text-critical-rose dark:text-red-400 hover:text-critical-rose/80 dark:hover:text-red-300 text-sm">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showAddModal() {
+            // Set default date to today
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // Populate source inventory (damaged/maintenance only)
+            const sourceSelect = document.getElementById('source-inventory');
+            sourceSelect.innerHTML = '<option value="">Select damaged/maintenance item...</option>';
+            inventoryItems
+                .filter(item => item.condition === 'damaged' || item.condition === 'maintenance')
+                .forEach(item => {
+                    sourceSelect.innerHTML += `<option value="${item.id}" data-name="${item.name}">${item.code} - ${item.name}</option>`;
+                });
+
+            // Populate destination inventory (all items)
+            const destSelect = document.getElementById('dest-inventory');
+            destSelect.innerHTML = '<option value="">Select item to repair (optional)...</option>';
+            inventoryItems.forEach(item => {
+                destSelect.innerHTML += `<option value="${item.id}" data-name="${item.name}">${item.code} - ${item.name}</option>`;
+            });
+
+            document.getElementById('log-modal').classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('log-modal').classList.add('hidden');
+            document.getElementById('log-form').reset();
+        }
+
+        async function deleteLog(id) {
+            if (!await showConfirm('Apakah Anda yakin ingin menghapus log kanibalisasi ini? Tindakan ini tidak dapat dibatalkan.', {
+                type: 'danger',
+                title: 'Hapus Log Kanibalisasi',
+                confirmText: 'Hapus',
+                cancelText: 'Batal'
+            })) return;
+            
+            try {
+                await api.cannibalization.delete(id);
+                showToast('Log deleted successfully', 'success');
+                loadLogs();
+            } catch (error) {
+                showToast('Failed to delete log', 'error');
+            }
+        }
+
+        document.getElementById('log-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const sourceSelect = document.getElementById('source-inventory');
+            const destSelect = document.getElementById('dest-inventory');
+            
+            const data = {
+                source_inventory_id: parseInt(sourceSelect.value),
+                source_item_name: sourceSelect.selectedOptions[0]?.dataset.name || '',
+                component_name: document.getElementById('component-name').value,
+                destination_inventory_id: destSelect.value ? parseInt(destSelect.value) : null,
+                destination_item_name: destSelect.selectedOptions[0]?.dataset.name || null,
+                quantity: parseInt(document.getElementById('quantity').value),
+                date: document.getElementById('date').value,
+                reason: document.getElementById('reason').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                await api.cannibalization.create(data);
+                showToast('Cannibalization log created', 'success');
+                hideModal();
+                loadLogs();
+            } catch (error) {
+                showToast(error.message || 'Failed to create log', 'error');
+            }
+        });
+
+        // Initialize
+        (async () => {
+            await loadInventoryItems();
+            loadLogs();
+        })();
+    </script>
+</body>
+</html>

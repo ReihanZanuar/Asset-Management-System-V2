@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Consumables - Asset Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#004ac6', 'primary-container': '#2563eb', 'on-primary': '#ffffff',
+                        'on-primary-container': '#eeefff', 'background': '#f7f9fb', 'on-background': '#191c1e',
+                        'surface': '#f7f9fb', 'on-surface': '#191c1e', 'surface-container-lowest': '#ffffff',
+                        'surface-container-low': '#f2f4f6', 'surface-container': '#eceef0',
+                        'surface-container-high': '#e6e8ea', 'on-surface-variant': '#434655',
+                        'outline': '#737686', 'outline-variant': '#c3c6d7',
+                        'success-emerald': '#10B981', 'warning-amber': '#F59E0B',
+                        'critical-rose': '#E11D48', 'indigo-accent': '#4F46E5', 'slate-surface': '#1E293B'
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="js/theme.js"></script>
+    <style>
+        body { background-color: #f7f9fb; color: #191c1e; font-family: 'Inter', sans-serif; }
+        html.dark body { background-color: #0F172A; color: #F8FAFC; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e6e8ea; }
+        html.dark ::-webkit-scrollbar-track { background: #1E293B; }
+        ::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 4px; }
+        html.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* === FLUID ANIMATIONS & TRANSITIONS (Optimized) === */
+        body { animation: pageFadeIn 0.3s ease-out; }
+        @keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        button, a { transition: transform 0.15s ease-out, opacity 0.15s ease-out, background-color 0.15s ease-out; }
+        button:hover { transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        nav a { transition: transform 0.2s ease-out, color 0.2s ease-out; }
+        nav a:hover { transform: translateX(4px); }
+        tbody tr { transition: background-color 0.15s ease-out; }
+        input, select, textarea { transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out; }
+
+        /* === CIRCULAR REVEAL THEME TRANSITION === */
+        ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.5s; animation-timing-function: ease-in-out; }
+        .theme-transition-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+        @keyframes circularReveal { from { clip-path: circle(0% at var(--x) var(--y)); } to { clip-path: circle(var(--end-radius) at var(--x) var(--y)); } }
+        body.theme-transitioning { pointer-events: none; }
+    </style>
+</head>
+<body class="antialiased overflow-hidden">
+    <div class="flex h-screen w-full relative">
+        <!-- Sidebar -->
+        <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface dark:bg-slate-surface border-r border-outline-variant dark:border-slate-700 fixed left-0 top-0 w-[280px] z-20">
+            <div class="mb-8 flex items-center space-x-3 px-3">
+                <div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">science</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-primary dark:text-blue-400">Asset</h1>
+                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">Management System</p>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="dashboard.html">
+                        <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="inventory.html">
+                        <span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="consumables.html">
+                        <span class="material-symbols-outlined">category</span><span>Consumables</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="loans.html">
+                        <span class="material-symbols-outlined">swap_horiz</span><span>Loans</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="cannibalization.html">
+                        <span class="material-symbols-outlined">build_circle</span><span>Cannibalization</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="analytics.html">
+                        <span class="material-symbols-outlined">bar_chart</span><span>Analytics</span></a></li>
+                </ul>
+            </div>
+            <div class="mt-auto pt-6 border-t border-outline-variant dark:border-slate-700">
+                <button onclick="api.auth.logout()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700">
+                    <span class="material-symbols-outlined">logout</span><span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col md:ml-[280px] h-screen overflow-hidden">
+            <header class="flex items-center justify-between px-8 h-16 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700">
+                <h2 class="text-xl font-semibold text-on-surface dark:text-white">Consumables Management</h2>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleThemeWithAnimation(event)" id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
+                        <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                        <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                    </button>
+                    <button onclick="exportConsumables()" class="px-4 py-2 bg-success-emerald hover:bg-success-emerald/90 text-white rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">download</span>
+                        Export Excel
+                    </button>
+                    <button onclick="showAddModal()" class="px-4 py-2 bg-primary-container hover:bg-primary text-white rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        Add Item
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-8 bg-background dark:bg-[#0F172A]">
+                <!-- Alert for low stock -->
+                <div id="low-stock-alert" class="hidden mb-6 p-4 bg-warning-amber/10 dark:bg-yellow-500/10 border border-warning-amber/50 dark:border-yellow-500/50 rounded-lg flex items-center gap-3">
+                    <span class="material-symbols-outlined text-warning-amber dark:text-yellow-500">warning</span>
+                    <div class="flex-1">
+                        <p class="text-warning-amber dark:text-yellow-500 font-semibold"><span id="low-stock-count">0</span> items are below minimum threshold</p>
+                        <p class="text-sm text-on-surface-variant dark:text-gray-400">Consider restocking soon</p>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="mb-6">
+                    <input type="text" id="search" placeholder="Search consumables..." 
+                        class="w-full px-4 py-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg text-on-surface dark:text-white placeholder:text-on-surface-variant dark:placeholder:text-gray-400">
+                </div>
+
+                <!-- Table -->
+                <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 overflow-x-auto">
+                    <table class="w-full min-w-max">
+                        <thead class="bg-surface-container dark:bg-slate-900 border-b border-outline-variant dark:border-slate-700">
+                            <tr>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Name</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Quantity</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Unit</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Min Threshold</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Status</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Location</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consumables-tbody" class="divide-y divide-outline-variant dark:divide-slate-700">
+                            <tr><td colspan="7" class="p-8 text-center text-on-surface-variant dark:text-gray-400">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="item-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 w-full max-w-lg mx-4 border border-outline-variant dark:border-slate-700">
+            <h3 id="modal-title" class="text-xl font-bold text-on-surface dark:text-white mb-4">Add Consumable</h3>
+            <form id="item-form" class="space-y-4">
+                <input type="hidden" id="item-id">
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Name*</label>
+                    <input type="text" id="name" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Quantity*</label>
+                        <input type="number" id="quantity" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Unit*</label>
+                        <input type="text" id="unit" required placeholder="e.g., Roll, Box, Pieces" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Minimum Threshold</label>
+                    <input type="number" id="min-threshold" value="10" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    <p class="text-xs text-on-surface-variant/70 dark:text-gray-500 mt-1">Alert when quantity falls below this value</p>
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Location</label>
+                    <input type="text" id="location" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Notes</label>
+                    <textarea id="notes" rows="2" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white"></textarea>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 py-2 bg-primary-container hover:bg-primary text-white rounded">Save</button>
+                    <button type="button" onclick="hideModal()" class="px-6 py-2 bg-surface-container-high dark:bg-slate-700 hover:bg-surface-container dark:hover:bg-slate-600 text-on-surface dark:text-white rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        if (!requireAuth()) location.href = 'login.html';
+
+        let currentData = [];
+
+        async function loadConsumables() {
+            try {
+                const search = document.getElementById('search').value;
+                currentData = await api.consumables.getAll({ search });
+                renderTable(currentData);
+                checkLowStock();
+            } catch (error) {
+                showToast('Failed to load consumables', 'error');
+            }
+        }
+
+        function checkLowStock() {
+            const lowStock = currentData.filter(item => item.quantity <= item.min_threshold);
+            const alert = document.getElementById('low-stock-alert');
+            if (lowStock.length > 0) {
+                document.getElementById('low-stock-count').textContent = lowStock.length;
+                alert.classList.remove('hidden');
+            } else {
+                alert.classList.add('hidden');
+            }
+        }
+
+        function renderTable(items) {
+            const tbody = document.getElementById('consumables-tbody');
+            if (!items.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-on-surface-variant dark:text-gray-400">No items found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = items.map(item => {
+                const isLow = item.quantity <= item.min_threshold;
+                const statusColor = isLow ? 'text-critical-rose dark:text-red-400' : 'text-success-emerald dark:text-green-400';
+                const statusText = isLow ? 'Low Stock' : 'In Stock';
+                
+                return `
+                    <tr class="text-on-surface dark:text-white hover:bg-surface-container-low dark:hover:bg-slate-700/50 ${isLow ? 'bg-critical-rose/5 dark:bg-red-500/5' : ''}">
+                        <td class="p-4 font-medium">${item.name}</td>
+                        <td class="p-4">
+                            <span class="text-xl font-bold ${isLow ? 'text-critical-rose dark:text-red-400' : 'text-on-surface dark:text-white'}">${item.quantity}</span>
+                        </td>
+                        <td class="p-4 text-sm text-on-surface-variant dark:text-gray-400">${item.unit}</td>
+                        <td class="p-4 text-sm text-on-surface-variant dark:text-gray-400">${item.min_threshold}</td>
+                        <td class="p-4">
+                            <span class="${statusColor} text-sm font-semibold flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">${isLow ? 'warning' : 'check_circle'}</span>
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="p-4 text-sm text-on-surface-variant dark:text-gray-400">${item.location || '-'}</td>
+                        <td class="p-4">
+                            <button onclick="editItem(${item.id})" class="text-primary dark:text-blue-400 hover:text-primary/80 dark:hover:text-blue-300 mr-3">Edit</button>
+                            <button onclick="deleteItem(${item.id})" class="text-critical-rose dark:text-red-400 hover:text-critical-rose/80 dark:hover:text-red-300">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showAddModal() {
+            document.getElementById('modal-title').textContent = 'Add Consumable';
+            document.getElementById('item-form').reset();
+            document.getElementById('item-id').value = '';
+            document.getElementById('item-modal').classList.remove('hidden');
+        }
+
+        async function editItem(id) {
+            try {
+                const item = currentData.find(i => i.id === id);
+                if (!item) return;
+                
+                document.getElementById('modal-title').textContent = 'Edit Consumable';
+                document.getElementById('item-id').value = item.id;
+                document.getElementById('name').value = item.name;
+                document.getElementById('quantity').value = item.quantity;
+                document.getElementById('unit').value = item.unit;
+                document.getElementById('min-threshold').value = item.min_threshold;
+                document.getElementById('location').value = item.location || '';
+                document.getElementById('notes').value = item.notes || '';
+                document.getElementById('item-modal').classList.remove('hidden');
+            } catch (error) {
+                showToast('Failed to load item', 'error');
+            }
+        }
+
+        async function deleteItem(id) {
+            if (!await showConfirm('Apakah Anda yakin ingin menghapus consumable ini?', {
+                type: 'danger',
+                title: 'Hapus Consumable',
+                confirmText: 'Hapus',
+                cancelText: 'Batal'
+            })) return;
+            try {
+                await api.consumables.delete(id);
+                showToast('Consumable deleted', 'success');
+                loadConsumables();
+            } catch (error) {
+                showToast('Failed to delete', 'error');
+            }
+        }
+
+        function hideModal() {
+            document.getElementById('item-modal').classList.add('hidden');
+        }
+
+        document.getElementById('item-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('item-id').value;
+            const data = {
+                name: document.getElementById('name').value,
+                quantity: parseInt(document.getElementById('quantity').value),
+                unit: document.getElementById('unit').value,
+                min_threshold: parseInt(document.getElementById('min-threshold').value),
+                location: document.getElementById('location').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                if (id) {
+                    await api.consumables.update(id, data);
+                    showToast('Consumable updated', 'success');
+                } else {
+                    await api.consumables.create(data);
+                    showToast('Consumable added', 'success');
+                }
+                hideModal();
+                loadConsumables();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        document.getElementById('search').addEventListener('input', loadConsumables);
+
+        // Export consumables
+        function exportConsumables() {
+            const endpoint = '/api/export/consumables';
+            const filename = `consumables_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+            downloadExcel(endpoint, filename);
+        }
+
+        loadConsumables();
+    </script>
+</body>
+</html>

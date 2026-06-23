@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Loans - Asset Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#004ac6', 'primary-container': '#2563eb', 'on-primary': '#ffffff',
+                        'on-primary-container': '#eeefff', 'background': '#f7f9fb', 'on-background': '#191c1e',
+                        'surface': '#f7f9fb', 'on-surface': '#191c1e', 'surface-container-lowest': '#ffffff',
+                        'surface-container-low': '#f2f4f6', 'surface-container': '#eceef0',
+                        'surface-container-high': '#e6e8ea', 'on-surface-variant': '#434655',
+                        'outline': '#737686', 'outline-variant': '#c3c6d7',
+                        'success-emerald': '#10B981', 'warning-amber': '#F59E0B',
+                        'critical-rose': '#E11D48', 'indigo-accent': '#4F46E5', 'slate-surface': '#1E293B'
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="js/theme.js"></script>
+    <style>
+        body { background-color: #f7f9fb; color: #191c1e; font-family: 'Inter', sans-serif; }
+        html.dark body { background-color: #0F172A; color: #F8FAFC; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e6e8ea; }
+        html.dark ::-webkit-scrollbar-track { background: #1E293B; }
+        ::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 4px; }
+        html.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* === FLUID ANIMATIONS & TRANSITIONS (Optimized) === */
+        body { animation: pageFadeIn 0.3s ease-out; }
+        @keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        button, a { transition: transform 0.15s ease-out, opacity 0.15s ease-out, background-color 0.15s ease-out; }
+        button:hover { transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        nav a { transition: transform 0.2s ease-out, color 0.2s ease-out; }
+        nav a:hover { transform: translateX(4px); }
+        tbody tr { transition: background-color 0.15s ease-out; }
+        input, select, textarea { transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out; }
+
+        /* === CIRCULAR REVEAL THEME TRANSITION === */
+        ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.5s; animation-timing-function: ease-in-out; }
+        .theme-transition-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+        @keyframes circularReveal { from { clip-path: circle(0% at var(--x) var(--y)); } to { clip-path: circle(var(--end-radius) at var(--x) var(--y)); } }
+        body.theme-transitioning { pointer-events: none; }
+    </style>
+</head>
+<body class="antialiased overflow-hidden">
+    <div class="flex h-screen w-full relative">
+        <!-- Sidebar -->
+        <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface dark:bg-slate-surface border-r border-outline-variant dark:border-slate-700 fixed left-0 top-0 w-[280px] z-20">
+            <div class="mb-8 flex items-center space-x-3 px-3">
+                <div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">science</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-primary dark:text-blue-400">Asset</h1>
+                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">Management System</p>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="dashboard.html">
+                        <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="inventory.html">
+                        <span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="consumables.html">
+                        <span class="material-symbols-outlined">category</span><span>Consumables</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="loans.html">
+                        <span class="material-symbols-outlined">swap_horiz</span><span>Loans</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="cannibalization.html">
+                        <span class="material-symbols-outlined">build_circle</span><span>Cannibalization</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="analytics.html">
+                        <span class="material-symbols-outlined">bar_chart</span><span>Analytics</span></a></li>
+                </ul>
+            </div>
+            <div class="mt-auto pt-6 border-t border-outline-variant dark:border-slate-700">
+                <button onclick="api.auth.logout()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700">
+                    <span class="material-symbols-outlined">logout</span><span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col md:ml-[280px] h-screen overflow-hidden">
+            <header class="flex items-center justify-between px-8 h-16 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700">
+                <h2 class="text-xl font-semibold text-on-surface dark:text-white">Loan Management</h2>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleThemeWithAnimation(event)" id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
+                        <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                        <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                    </button>
+                    <button onclick="exportLoans()" class="px-4 py-2 bg-success-emerald hover:bg-success-emerald/90 text-white rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">download</span>
+                        Export Excel
+                    </button>
+                    <button onclick="showAddModal()" class="px-4 py-2 bg-primary-container hover:bg-primary text-white rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        New Loan
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-8 bg-background dark:bg-[#0F172A]">
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 p-4 rounded-lg border border-outline-variant dark:border-slate-700">
+                        <div class="text-2xl font-bold text-on-surface dark:text-white" id="active-count">-</div>
+                        <div class="text-sm text-on-surface-variant dark:text-gray-400">Active Loans</div>
+                    </div>
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 p-4 rounded-lg border border-outline-variant dark:border-slate-700">
+                        <div class="text-2xl font-bold text-critical-rose dark:text-red-400" id="overdue-count">-</div>
+                        <div class="text-sm text-on-surface-variant dark:text-gray-400">Overdue</div>
+                    </div>
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 p-4 rounded-lg border border-outline-variant dark:border-slate-700">
+                        <div class="text-2xl font-bold text-success-emerald dark:text-green-400" id="returned-count">-</div>
+                        <div class="text-sm text-on-surface-variant dark:text-gray-400">Returned Today</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="mb-6 flex gap-4">
+                    <input type="text" id="search" placeholder="Search borrower or item..." 
+                        class="flex-1 px-4 py-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg text-on-surface dark:text-white placeholder:text-on-surface-variant dark:placeholder:text-gray-400">
+                    <select id="status-filter" class="px-4 py-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg text-on-surface dark:text-white">
+                        <option value="">All Status</option>
+                        <option value="borrowed">Borrowed</option>
+                        <option value="returned">Returned</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-surface-container dark:bg-slate-900 border-b border-outline-variant dark:border-slate-700">
+                            <tr>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Item</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Borrower</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Loan Date</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Due Date</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Status</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loans-tbody" class="divide-y divide-outline-variant dark:divide-slate-700">
+                            <tr><td colspan="6" class="p-8 text-center text-on-surface-variant dark:text-gray-400">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Loan Modal -->
+    <div id="loan-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 w-full max-w-lg mx-4 border border-outline-variant dark:border-slate-700">
+            <h3 class="text-xl font-bold text-on-surface dark:text-white mb-4">Create New Loan</h3>
+            <form id="loan-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Select Item*</label>
+                    <select id="inventory-select" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                        <option value="">Loading items...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Borrower Name*</label>
+                    <input type="text" id="borrower-name" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Class</label>
+                    <input type="text" id="borrower-class" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Contact</label>
+                    <input type="text" id="borrower-contact" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Due Date*</label>
+                    <input type="date" id="due-date" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 py-2 bg-primary-container hover:bg-primary text-white rounded">Create Loan</button>
+                    <button type="button" onclick="hideModal()" class="px-6 py-2 bg-surface-container-high dark:bg-slate-700 hover:bg-surface-container dark:hover:bg-slate-600 text-on-surface dark:text-white rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Return Modal -->
+    <div id="return-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 w-full max-w-lg mx-4 border border-outline-variant dark:border-slate-700">
+            <h3 class="text-xl font-bold text-on-surface dark:text-white mb-4">Return Item</h3>
+            <form id="return-form" class="space-y-4">
+                <input type="hidden" id="return-loan-id">
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Condition on Return*</label>
+                    <select id="return-condition" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                        <option value="available">Good - Available</option>
+                        <option value="maintenance">Needs Maintenance</option>
+                        <option value="damaged">Damaged</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Notes</label>
+                    <textarea id="return-notes" rows="3" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white"></textarea>
+                </div>
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 py-2 bg-success-emerald hover:bg-success-emerald/90 text-white rounded">Mark as Returned</button>
+                    <button type="button" onclick="hideReturnModal()" class="px-6 py-2 bg-surface-container-high dark:bg-slate-700 hover:bg-surface-container dark:hover:bg-slate-600 text-on-surface dark:text-white rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        if (!requireAuth()) location.href = 'login.html';
+
+        let currentLoans = [];
+
+        async function loadLoans() {
+            try {
+                const search = document.getElementById('search').value;
+                const status = document.getElementById('status-filter').value;
+                currentLoans = await api.loans.getAll({ search, status });
+                renderTable(currentLoans);
+                updateStats();
+            } catch (error) {
+                showToast('Failed to load loans', 'error');
+            }
+        }
+
+        function updateStats() {
+            const active = currentLoans.filter(l => l.status === 'borrowed').length;
+            const overdue = currentLoans.filter(l => l.status === 'borrowed' && new Date(l.due_date) < new Date()).length;
+            const returned = currentLoans.filter(l => l.status === 'returned' && new Date(l.return_date).toDateString() === new Date().toDateString()).length;
+            
+            document.getElementById('active-count').textContent = active;
+            document.getElementById('overdue-count').textContent = overdue;
+            document.getElementById('returned-count').textContent = returned;
+        }
+
+        function renderTable(loans) {
+            const tbody = document.getElementById('loans-tbody');
+            if (!loans.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-on-surface-variant dark:text-gray-400">No loans found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = loans.map(loan => {
+                const isOverdue = loan.status === 'borrowed' && new Date(loan.due_date) < new Date();
+                const statusClass = isOverdue ? 'overdue' : loan.status;
+                return `
+                    <tr class="text-on-surface dark:text-white hover:bg-surface-container-low dark:hover:bg-slate-700/50">
+                        <td class="p-4">
+                            <div class="font-medium">${loan.item_name}</div>
+                            <div class="text-xs text-on-surface-variant dark:text-gray-400">${loan.item_code}</div>
+                        </td>
+                        <td class="p-4">
+                            <div>${loan.borrower_name}</div>
+                            <div class="text-xs text-on-surface-variant dark:text-gray-400">${loan.borrower_class || '-'}</div>
+                        </td>
+                        <td class="p-4 text-sm">${formatDate(loan.loan_date)}</td>
+                        <td class="p-4 text-sm ${isOverdue ? 'text-critical-rose dark:text-red-400' : ''}">${formatDate(loan.due_date)}</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-xs ${getStatusBadgeClass(statusClass)}">${isOverdue ? 'Overdue' : loan.status}</span></td>
+                        <td class="p-4">
+                            ${loan.status === 'borrowed' ? 
+                                `<button onclick="showReturnModal(${loan.id})" class="text-success-emerald dark:text-green-400 hover:text-success-emerald/80 dark:hover:text-green-300">Return</button>` :
+                                `<span class="text-on-surface-variant/50 dark:text-gray-500">-</span>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function showAddModal() {
+            try {
+                const items = await api.inventory.getAll({ condition: 'available' });
+                const select = document.getElementById('inventory-select');
+                select.innerHTML = '<option value="">Select an item...</option>' + 
+                    items.map(item => `<option value="${item.id}">${item.name} (${item.code})</option>`).join('');
+                document.getElementById('loan-modal').classList.remove('hidden');
+                
+                // Set default due date (7 days from now)
+                const defaultDate = new Date();
+                defaultDate.setDate(defaultDate.getDate() + 7);
+                document.getElementById('due-date').value = defaultDate.toISOString().split('T')[0];
+            } catch (error) {
+                showToast('Failed to load available items', 'error');
+            }
+        }
+
+        function hideModal() {
+            document.getElementById('loan-modal').classList.add('hidden');
+        }
+
+        function showReturnModal(loanId) {
+            document.getElementById('return-loan-id').value = loanId;
+            document.getElementById('return-modal').classList.remove('hidden');
+        }
+
+        function hideReturnModal() {
+            document.getElementById('return-modal').classList.add('hidden');
+        }
+
+        document.getElementById('loan-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                inventory_id: document.getElementById('inventory-select').value,
+                borrower_name: document.getElementById('borrower-name').value,
+                borrower_class: document.getElementById('borrower-class').value,
+                borrower_contact: document.getElementById('borrower-contact').value,
+                due_date: document.getElementById('due-date').value
+            };
+
+            try {
+                await api.loans.create(data);
+                showToast('Loan created successfully', 'success');
+                hideModal();
+                loadLoans();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        document.getElementById('return-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loanId = document.getElementById('return-loan-id').value;
+            const data = {
+                condition_on_return: document.getElementById('return-condition').value,
+                notes: document.getElementById('return-notes').value
+            };
+
+            try {
+                await api.loans.return(loanId, data);
+                showToast('Item returned successfully', 'success');
+                hideReturnModal();
+                loadLoans();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        document.getElementById('search').addEventListener('input', loadLoans);
+        document.getElementById('status-filter').addEventListener('change', loadLoans);
+
+        // Export loans with current filters
+        function exportLoans() {
+            const status = document.getElementById('status-filter').value;
+            
+            // Build query string with active filters
+            const params = new URLSearchParams();
+            if (status) params.append('status', status);
+            
+            const queryString = params.toString();
+            const endpoint = `/api/export/loans${queryString ? '?' + queryString : ''}`;
+            const filename = `loans_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+            
+            downloadExcel(endpoint, filename);
+        }
+
+        loadLoans();
+    </script>
+</body>
+</html>

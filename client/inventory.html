@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Inventory - Asset Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#004ac6', 'primary-container': '#2563eb', 'on-primary': '#ffffff',
+                        'on-primary-container': '#eeefff', 'background': '#f7f9fb', 'on-background': '#191c1e',
+                        'surface': '#f7f9fb', 'on-surface': '#191c1e', 'surface-container-lowest': '#ffffff',
+                        'surface-container-low': '#f2f4f6', 'surface-container': '#eceef0',
+                        'surface-container-high': '#e6e8ea', 'on-surface-variant': '#434655',
+                        'outline': '#737686', 'outline-variant': '#c3c6d7',
+                        'success-emerald': '#10B981', 'warning-amber': '#F59E0B',
+                        'critical-rose': '#E11D48', 'indigo-accent': '#4F46E5', 'slate-surface': '#1E293B'
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="js/theme.js"></script>
+    <style>
+        body { background-color: #f7f9fb; color: #191c1e; font-family: 'Inter', sans-serif; }
+        html.dark body { background-color: #0F172A; color: #F8FAFC; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e6e8ea; }
+        html.dark ::-webkit-scrollbar-track { background: #1E293B; }
+        ::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 4px; }
+        html.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+        /* === FLUID ANIMATIONS & TRANSITIONS (Optimized) === */
+        body { animation: pageFadeIn 0.3s ease-out; }
+        @keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        button, a { transition: transform 0.15s ease-out, opacity 0.15s ease-out, background-color 0.15s ease-out; }
+        button:hover { transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        nav a { transition: transform 0.2s ease-out, color 0.2s ease-out; }
+        nav a:hover { transform: translateX(4px); }
+        tbody tr { transition: background-color 0.15s ease-out; }
+        input, select, textarea { transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out; }
+
+        /* === CIRCULAR REVEAL THEME TRANSITION === */
+        ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.5s; animation-timing-function: ease-in-out; }
+        .theme-transition-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+        @keyframes circularReveal { from { clip-path: circle(0% at var(--x) var(--y)); } to { clip-path: circle(var(--end-radius) at var(--x) var(--y)); } }
+        body.theme-transitioning { pointer-events: none; }
+    </style>
+</head>
+<body class="antialiased overflow-hidden">
+    <div class="flex h-screen w-full relative">
+        <!-- Sidebar (same as dashboard) -->
+        <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface dark:bg-slate-surface border-r border-outline-variant dark:border-slate-700 fixed left-0 top-0 w-[280px] z-20">
+            <div class="mb-8 flex items-center space-x-3 px-3">
+                <div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">science</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-primary dark:text-blue-400">Asset</h1>
+                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">Management System</p>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="dashboard.html">
+                        <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="inventory.html">
+                        <span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="consumables.html">
+                        <span class="material-symbols-outlined">category</span><span>Consumables</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="loans.html">
+                        <span class="material-symbols-outlined">swap_horiz</span><span>Loans</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="cannibalization.html">
+                        <span class="material-symbols-outlined">build_circle</span><span>Cannibalization</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="analytics.html">
+                        <span class="material-symbols-outlined">bar_chart</span><span>Analytics</span></a></li>
+                </ul>
+            </div>
+            <div class="mt-auto pt-6 border-t border-outline-variant dark:border-slate-700">
+                <button onclick="api.auth.logout()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700">
+                    <span class="material-symbols-outlined">logout</span><span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col md:ml-[280px] h-screen overflow-hidden">
+            <header class="flex items-center justify-between px-8 h-16 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700">
+                <h2 class="text-xl font-semibold text-on-surface dark:text-white">Inventory Management</h2>
+                <div class="flex items-center gap-3">
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleThemeWithAnimation(event)" id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
+                        <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                        <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                    </button>
+                    <button onclick="exportInventory()" class="px-4 py-2 bg-success-emerald hover:bg-success-emerald/90 text-white rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">download</span>
+                        Export Excel
+                    </button>
+                    <button onclick="showAddModal()" class="px-4 py-2 bg-primary-container hover:bg-primary text-white rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">add</span>
+                        Add Item
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-8 bg-background dark:bg-[#0F172A]">
+                <!-- Filters -->
+                <div class="mb-6 flex gap-4">
+                    <input type="text" id="search" placeholder="Search by name or code..." 
+                        class="flex-1 px-4 py-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg text-on-surface dark:text-white placeholder:text-on-surface-variant dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary dark:focus:ring-blue-500">
+                    <select id="category-filter" class="px-4 py-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg text-on-surface dark:text-white">
+                        <option value="">All Categories</option>
+                        <option value="Networking">Networking</option>
+                        <option value="Computer">Computer</option>
+                        <option value="Tools">Tools</option>
+                    </select>
+                    <select id="condition-filter" class="px-4 py-2 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg text-on-surface dark:text-white">
+                        <option value="">All Conditions</option>
+                        <option value="available">Available</option>
+                        <option value="borrowed">Borrowed</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="damaged">Damaged</option>
+                    </select>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-surface-container dark:bg-slate-900 border-b border-outline-variant dark:border-slate-700">
+                            <tr>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Photo</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Code</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Name</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Category</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Condition</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Location</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-tbody" class="divide-y divide-outline-variant dark:divide-slate-700">
+                            <tr><td colspan="7" class="p-8 text-center text-gray-400">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="item-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto border border-outline-variant dark:border-slate-700">
+            <h3 id="modal-title" class="text-xl font-bold text-on-surface dark:text-white mb-4">Add Inventory Item</h3>
+            <form id="item-form" class="space-y-4">
+                <input type="hidden" id="item-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Code*</label>
+                        <input type="text" id="code" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Name*</label>
+                        <input type="text" id="name" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Category</label>
+                        <input type="text" id="category" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Condition</label>
+                        <select id="condition" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                            <option value="available">Available</option>
+                            <option value="borrowed">Borrowed</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="damaged">Damaged</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Location</label>
+                        <input type="text" id="location" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Price</label>
+                        <input type="number" id="price" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-1">Specifications</label>
+                    <textarea id="specifications" rows="2" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white"></textarea>
+                </div>
+                
+                <!-- Image Upload Section -->
+                <div>
+                    <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-2">
+                        Photos (Optional, up to 5)
+                    </label>
+                    <input 
+                        type="file" 
+                        id="item-images" 
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        multiple
+                        class="w-full px-3 py-2 bg-surface-container-high dark:bg-slate-700 
+                               border border-outline-variant dark:border-slate-600 rounded-lg
+                               text-on-surface dark:text-white text-sm
+                               file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
+                               file:bg-primary file:text-white hover:file:bg-primary/90
+                               cursor-pointer transition-colors"
+                    />
+                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">
+                        Max 10MB per image. Supported: JPEG, PNG, WebP
+                    </p>
+                    
+                    <!-- Image Preview Gallery -->
+                    <div id="image-preview-gallery" class="mt-3 grid grid-cols-5 gap-2 hidden">
+                        <!-- Preview items will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 py-2 bg-primary-container hover:bg-primary text-white rounded">Save</button>
+                    <button type="button" onclick="hideModal()" class="px-6 py-2 bg-surface-container-high dark:bg-slate-700 hover:bg-surface-container dark:hover:bg-slate-600 text-on-surface dark:text-white rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="image-viewer-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+        <div class="relative w-full h-full flex items-center justify-center p-4">
+            <!-- Close Button -->
+            <button onclick="closeImageViewer()" 
+                    class="absolute top-4 right-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined text-white text-2xl">close</span>
+            </button>
+            
+            <!-- Previous Button -->
+            <button id="prev-image-btn" onclick="navigateImage(-1)" 
+                    class="absolute left-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined text-white text-2xl">chevron_left</span>
+            </button>
+            
+            <!-- Image Container -->
+            <div class="max-w-5xl max-h-[90vh] flex flex-col items-center">
+                <img id="viewer-image" class="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl" />
+                <div id="image-counter" class="mt-4 text-white text-sm"></div>
+            </div>
+            
+            <!-- Next Button -->
+            <button id="next-image-btn" onclick="navigateImage(1)" 
+                    class="absolute right-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                <span class="material-symbols-outlined text-white text-2xl">chevron_right</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        if (!requireAuth()) location.href = 'login.html';
+
+        let currentData = [];
+        let existingImages = []; // Store existing images for edit mode
+        let imagesToKeep = []; // Track which existing images to keep
+
+        // Handle image file selection and preview
+        document.getElementById('item-images').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const gallery = document.getElementById('image-preview-gallery');
+            
+            // Validate file count (max 5 total including existing)
+            const totalCount = files.length + imagesToKeep.length;
+            if (totalCount > 5) {
+                showToast('Maximum 5 images allowed', 'error');
+                e.target.value = '';
+                return;
+            }
+            
+            // Validate file sizes (10MB each)
+            const invalidFiles = files.filter(f => f.size > 10 * 1024 * 1024);
+            if (invalidFiles.length > 0) {
+                showToast('Some files exceed 10MB limit', 'error');
+                e.target.value = '';
+                return;
+            }
+            
+            // Clear and rebuild preview gallery
+            gallery.innerHTML = '';
+            
+            // Show existing images that are being kept
+            imagesToKeep.forEach((imgPath, index) => {
+                const previewItem = createImagePreview(imgPath, index, 'existing');
+                gallery.appendChild(previewItem);
+            });
+            
+            // Show new image previews
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = createImagePreview(e.target.result, index, 'new');
+                    gallery.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Show gallery if there are images
+            if (files.length > 0 || imagesToKeep.length > 0) {
+                gallery.classList.remove('hidden');
+            }
+        });
+        
+        // Create image preview element
+        function createImagePreview(src, index, type) {
+            const div = document.createElement('div');
+            div.className = 'relative group';
+            div.innerHTML = `
+                <img src="${src}" class="w-full h-24 object-cover rounded-lg border-2 border-outline-variant dark:border-slate-600" />
+                <button type="button" onclick="removeImagePreview(${index}, '${type}')" 
+                        class="absolute top-1 right-1 w-6 h-6 bg-critical-rose hover:bg-red-600 text-white rounded-full 
+                               flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span class="text-xs">✕</span>
+                </button>
+            `;
+            return div;
+        }
+        
+        // Remove image from preview
+        window.removeImagePreview = function(index, type) {
+            if (type === 'existing') {
+                imagesToKeep.splice(index, 1);
+            } else {
+                // Clear file input and trigger change to rebuild
+                const input = document.getElementById('item-images');
+                const dt = new DataTransfer();
+                const files = Array.from(input.files);
+                files.forEach((file, i) => {
+                    if (i !== index) dt.items.add(file);
+                });
+                input.files = dt.files;
+            }
+            // Trigger change event to rebuild preview
+            document.getElementById('item-images').dispatchEvent(new Event('change'));
+        };
+
+        async function loadInventory() {
+            try {
+                const search = document.getElementById('search').value;
+                const category = document.getElementById('category-filter').value;
+                const condition = document.getElementById('condition-filter').value;
+                
+                currentData = await api.inventory.getAll({ search, category, condition });
+                renderTable(currentData);
+            } catch (error) {
+                showToast('Failed to load inventory', 'error');
+            }
+        }
+
+        function renderTable(items) {
+            const tbody = document.getElementById('inventory-tbody');
+            if (!items.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-on-surface-variant dark:text-gray-400">No items found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = items.map(item => `
+                <tr class="text-on-surface dark:text-white hover:bg-surface-container-low dark:hover:bg-slate-700/50">
+                    <td class="p-4">
+                        ${item.images && item.images.length > 0 
+                            ? `<div class="flex gap-1">
+                                ${item.images.slice(0, 3).map(img => `
+                                    <img src="${img}" 
+                                         onclick="showImageViewer(${item.id}, '${img}')" 
+                                         class="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity border border-outline-variant dark:border-slate-600" 
+                                         alt="${item.name}" />
+                                `).join('')}
+                                ${item.images.length > 3 ? `<div class="w-12 h-12 flex items-center justify-center bg-surface-container dark:bg-slate-700 rounded text-xs text-on-surface-variant dark:text-gray-400 border border-outline-variant dark:border-slate-600">+${item.images.length - 3}</div>` : ''}
+                               </div>`
+                            : '<span class="material-symbols-outlined text-on-surface-variant dark:text-gray-500">image</span>'
+                        }
+                    </td>
+                    <td class="p-4 font-mono text-sm">${item.code}</td>
+                    <td class="p-4">${item.name}</td>
+                    <td class="p-4 text-sm">${item.category || '-'}</td>
+                    <td class="p-4"><span class="px-2 py-1 rounded text-xs ${getStatusBadgeClass(item.condition)}">${item.condition}</span></td>
+                    <td class="p-4 text-sm text-on-surface-variant dark:text-gray-400">${item.location || '-'}</td>
+                    <td class="p-4">
+                        <button onclick="editItem(${item.id})" class="text-primary dark:text-blue-400 hover:text-primary/80 dark:hover:text-blue-300 mr-3">Edit</button>
+                        <button onclick="deleteItem(${item.id})" class="text-critical-rose dark:text-red-400 hover:text-critical-rose/80 dark:hover:text-red-300">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showAddModal() {
+            document.getElementById('modal-title').textContent = 'Add Inventory Item';
+            document.getElementById('item-form').reset();
+            document.getElementById('item-id').value = '';
+            existingImages = [];
+            imagesToKeep = [];
+            document.getElementById('image-preview-gallery').innerHTML = '';
+            document.getElementById('image-preview-gallery').classList.add('hidden');
+            document.getElementById('item-modal').classList.remove('hidden');
+        }
+
+        async function editItem(id) {
+            try {
+                const item = await api.inventory.getById(id);
+                document.getElementById('modal-title').textContent = 'Edit Inventory Item';
+                document.getElementById('item-id').value = item.id;
+                document.getElementById('code').value = item.code;
+                document.getElementById('name').value = item.name;
+                document.getElementById('category').value = item.category || '';
+                document.getElementById('condition').value = item.condition;
+                document.getElementById('location').value = item.location || '';
+                document.getElementById('price').value = item.price || '';
+                document.getElementById('specifications').value = item.specifications || '';
+                
+                // Handle existing images
+                existingImages = item.images || [];
+                imagesToKeep = [...existingImages];
+                
+                // Display existing images
+                const gallery = document.getElementById('image-preview-gallery');
+                gallery.innerHTML = '';
+                if (existingImages.length > 0) {
+                    existingImages.forEach((imgPath, index) => {
+                        const previewItem = createImagePreview(imgPath, index, 'existing');
+                        gallery.appendChild(previewItem);
+                    });
+                    gallery.classList.remove('hidden');
+                } else {
+                    gallery.classList.add('hidden');
+                }
+                
+                document.getElementById('item-modal').classList.remove('hidden');
+            } catch (error) {
+                showToast('Failed to load item', 'error');
+            }
+        }
+
+        async function deleteItem(id) {
+            if (!await showConfirm('Apakah Anda yakin ingin menghapus item ini?', {
+                type: 'danger',
+                title: 'Hapus Item',
+                confirmText: 'Hapus',
+                cancelText: 'Batal'
+            })) return;
+            try {
+                await api.inventory.delete(id);
+                showToast('Item deleted successfully', 'success');
+                loadInventory();
+            } catch (error) {
+                showToast('Failed to delete item', 'error');
+            }
+        }
+
+        function hideModal() {
+            document.getElementById('item-modal').classList.add('hidden');
+        }
+
+        document.getElementById('item-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('item-id').value;
+            
+            // Use FormData for file upload support
+            const formData = new FormData();
+            formData.append('code', document.getElementById('code').value);
+            formData.append('name', document.getElementById('name').value);
+            formData.append('category', document.getElementById('category').value);
+            formData.append('condition', document.getElementById('condition').value);
+            formData.append('location', document.getElementById('location').value);
+            formData.append('price', document.getElementById('price').value);
+            formData.append('specifications', document.getElementById('specifications').value);
+            
+            // Add image files
+            const imageFiles = document.getElementById('item-images').files;
+            for (let i = 0; i < imageFiles.length; i++) {
+                formData.append('images', imageFiles[i]);
+            }
+            
+            // For updates, add keepImages parameter (existing images to keep)
+            if (id && imagesToKeep.length > 0) {
+                formData.append('keepImages', imagesToKeep.join(','));
+            }
+
+            try {
+                if (id) {
+                    await api.inventory.updateWithImages(id, formData);
+                    showToast('Item updated successfully', 'success');
+                } else {
+                    await api.inventory.createWithImages(formData);
+                    showToast('Item created successfully', 'success');
+                }
+                hideModal();
+                loadInventory();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        document.getElementById('search').addEventListener('input', loadInventory);
+        document.getElementById('category-filter').addEventListener('change', loadInventory);
+        document.getElementById('condition-filter').addEventListener('change', loadInventory);
+
+        // Export inventory with current filters
+        function exportInventory() {
+            const search = document.getElementById('search').value;
+            const category = document.getElementById('category-filter').value;
+            const condition = document.getElementById('condition-filter').value;
+            
+            // Build query string with active filters
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (category) params.append('category', category);
+            if (condition) params.append('condition', condition);
+            
+            const queryString = params.toString();
+            const endpoint = `/api/export/inventory${queryString ? '?' + queryString : ''}`;
+            const filename = `inventory_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+            
+            downloadExcel(endpoint, filename);
+        }
+        
+        // Image Viewer State
+        let currentViewerItem = null;
+        let currentImageIndex = 0;
+        
+        // Show full-size image viewer
+        window.showImageViewer = function(itemId, clickedImageUrl) {
+            // Find the item in currentData
+            currentViewerItem = currentData.find(item => item.id === itemId);
+            if (!currentViewerItem || !currentViewerItem.images || currentViewerItem.images.length === 0) {
+                return;
+            }
+            
+            // Find index of clicked image
+            currentImageIndex = currentViewerItem.images.findIndex(img => img === clickedImageUrl);
+            if (currentImageIndex === -1) currentImageIndex = 0;
+            
+            // Display image
+            updateViewerImage();
+            
+            // Show modal
+            document.getElementById('image-viewer-modal').classList.remove('hidden');
+            
+            // Update navigation button visibility
+            updateNavigationButtons();
+        };
+        
+        // Close image viewer
+        window.closeImageViewer = function() {
+            document.getElementById('image-viewer-modal').classList.add('hidden');
+            currentViewerItem = null;
+            currentImageIndex = 0;
+        };
+        
+        // Navigate to next/previous image
+        window.navigateImage = function(direction) {
+            if (!currentViewerItem || !currentViewerItem.images) return;
+            
+            currentImageIndex += direction;
+            
+            // Wrap around
+            if (currentImageIndex < 0) {
+                currentImageIndex = currentViewerItem.images.length - 1;
+            } else if (currentImageIndex >= currentViewerItem.images.length) {
+                currentImageIndex = 0;
+            }
+            
+            updateViewerImage();
+            updateNavigationButtons();
+        };
+        
+        // Update displayed image
+        function updateViewerImage() {
+            if (!currentViewerItem || !currentViewerItem.images) return;
+            
+            const imageUrl = currentViewerItem.images[currentImageIndex];
+            document.getElementById('viewer-image').src = imageUrl;
+            
+            // Update counter
+            const counter = document.getElementById('image-counter');
+            if (currentViewerItem.images.length > 1) {
+                counter.textContent = `${currentImageIndex + 1} / ${currentViewerItem.images.length}`;
+                counter.classList.remove('hidden');
+            } else {
+                counter.classList.add('hidden');
+            }
+        }
+        
+        // Update navigation button visibility
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prev-image-btn');
+            const nextBtn = document.getElementById('next-image-btn');
+            
+            if (!currentViewerItem || !currentViewerItem.images || currentViewerItem.images.length <= 1) {
+                prevBtn.classList.add('hidden');
+                nextBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
+            }
+        }
+        
+        // Keyboard navigation for image viewer
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('image-viewer-modal');
+            if (!modal.classList.contains('hidden')) {
+                if (e.key === 'Escape') {
+                    closeImageViewer();
+                } else if (e.key === 'ArrowLeft') {
+                    navigateImage(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateImage(1);
+                }
+            }
+        });
+
+        loadInventory();
+    </script>
+</body>
+</html>
