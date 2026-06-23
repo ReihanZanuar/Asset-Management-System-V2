@@ -6,7 +6,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-12+-blue.svg)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-![Dashboard Preview](https://via.placeholder.com/800x400/1E293B/FFFFFF?text=AMS-SMK+Dashboard)
+![Dashboard Preview](docs/screenshots/02-dashboard.png)
 
 ## 📋 Table of Contents
 
@@ -489,6 +489,11 @@ docker-compose down
 **Access**: http://localhost
 
 **See full Docker guide**: [DOCKER_QUICKSTART.md](DOCKER_QUICKSTART.md)
+
+**Successful Deployment:**
+
+![Docker Containers Running](docs/screenshots/13-docker-containers.png)
+*All containers running with healthy status*
 
 ---
 

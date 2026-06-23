@@ -15,6 +15,7 @@ This folder contains application screenshots for documentation.
 - `10-analytics-2.png` - Analytics page (scrolled down view)
 - `11-cannibalization.png` - Cannibalization tracking page
 - `12-cannibalization-add.png` - Add cannibalization modal
+- `13-docker-containers.png` - Docker Desktop with running containers
 
 ## Guidelines:
 - Format: PNG (high quality)
