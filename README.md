@@ -374,14 +374,41 @@ ams-smk/
 
 ## 📸 Screenshots
 
+### Login Page
+![Login](docs/screenshots/01-login.png)
+
 ### Dashboard
-![Dashboard](https://via.placeholder.com/800x500/0F172A/FFFFFF?text=Real-time+Dashboard)
+![Dashboard](docs/screenshots/02-dashboard.png)
 
 ### Inventory Management
-![Inventory](https://via.placeholder.com/800x500/0F172A/FFFFFF?text=Inventory+CRUD)
+![Inventory](docs/screenshots/03-inventory.png)
 
-### Loan Tracking
-![Loans](https://via.placeholder.com/800x500/0F172A/FFFFFF?text=Loan+Management)
+### Add Inventory Item
+![Add Inventory](docs/screenshots/04-inventory-add.png)
+
+### Inventory Detail with Image
+![Inventory Detail](docs/screenshots/05-inventory-detail.png)
+
+### Loan Management
+![Loans](docs/screenshots/06-loans.png)
+
+### Create New Loan
+![Create Loan](docs/screenshots/07-loans-create.png)
+
+### Consumables Tracking
+![Consumables](docs/screenshots/08-consumables.png)
+
+### Analytics & Reports
+![Analytics](docs/screenshots/09-analytics.png)
+
+### Analytics (Detailed View)
+![Analytics 2](docs/screenshots/10-analytics-2.png)
+
+### Cannibalization Tracking
+![Cannibalization](docs/screenshots/11-cannibalization.png)
+
+### Add Cannibalization
+![Add Cannibalization](docs/screenshots/12-cannibalization-add.png)
 
 ---
 
