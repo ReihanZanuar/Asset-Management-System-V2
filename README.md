@@ -35,10 +35,11 @@
 - 🔍 **Advanced Search** - Full-text search for inventory items
 - 🎯 **OCR Scanning** - Barcode/item recognition via camera or image upload
 - 📋 **Stock Audit/Opname** - Comprehensive inventory audit system with reconciliation
+- 🏷️ **QR Code Generation** - Generate comprehensive QR codes for inventory items with download/print options
 - 📱 **Responsive Design** - Works on desktop dan mobile
 
 ### Technical Features
-- ⚡ REST API with 35+ endpoints
+- ⚡ REST API with 36+ endpoints
 - 🗄️ PostgreSQL database dengan relational schema
 - 🔒 Secure password hashing (bcrypt)
 - 📝 Activity logging untuk audit trail
@@ -46,6 +47,7 @@
 - 🚀 Fast performance (< 100ms avg response time)
 - 📸 OCR & Image processing capabilities
 - 🔎 Full-text search functionality
+- 🏷️ QR code generation with comprehensive item data encoding
 
 ---
 
@@ -58,6 +60,7 @@
 - **Authentication**: JWT (jsonwebtoken)
 - **Security**: bcryptjs, cors
 - **Validation**: express-validator
+- **QR Code**: qrcode (QR code generation)
 
 ### Frontend
 - **Framework**: Vanilla JavaScript (ES6+)
@@ -292,6 +295,7 @@ GET    /api/auth/profile      - Get current user profile
 GET    /api/inventory         - Get all inventory items
 GET    /api/inventory/stats   - Get inventory statistics
 GET    /api/inventory/:id     - Get single item
+GET    /api/inventory/:id/qrcode - Generate QR code with comprehensive item data
 POST   /api/inventory         - Create new item
 PUT    /api/inventory/:id     - Update item
 DELETE /api/inventory/:id     - Delete item
@@ -619,6 +623,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Version 1.1 (In Progress)
 - [x] Export to Excel/PDF
 - [x] Barcode/QR code scanning (OCR)
+- [x] QR code generation for items
 - [x] Stock audit/opname system
 - [x] Full-text search functionality
 - [ ] Email notifications for overdue loans
