@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 package-lock.json
+yarn.lock
 
 # Environment variables
 .env
@@ -14,6 +15,7 @@ server/uploads/*
 # Logs
 *.log
 npm-debug.log*
+yarn-error.log*
 logs/
 
 # OS files
@@ -31,6 +33,8 @@ Thumbs.db
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # Docker
 .dockerignore
@@ -42,3 +46,8 @@ coverage/
 # Build artifacts
 dist/
 build/
+
+# Temporary files
+*.tmp
+.env.test
+.env.production

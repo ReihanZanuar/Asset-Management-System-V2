@@ -6,6 +6,8 @@
     <title>Loans - Asset Management System</title>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="css/animations.css" rel="stylesheet"/>
+    <link href="css/background.css" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
         tailwind.config = {
@@ -36,17 +38,6 @@
         ::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 4px; }
         html.dark ::-webkit-scrollbar-thumb { background: #475569; }
 
-        /* === FLUID ANIMATIONS & TRANSITIONS (Optimized) === */
-        body { animation: pageFadeIn 0.3s ease-out; }
-        @keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        button, a { transition: transform 0.15s ease-out, opacity 0.15s ease-out, background-color 0.15s ease-out; }
-        button:hover { transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
-        nav a { transition: transform 0.2s ease-out, color 0.2s ease-out; }
-        nav a:hover { transform: translateX(4px); }
-        tbody tr { transition: background-color 0.15s ease-out; }
-        input, select, textarea { transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out; }
-
         /* === CIRCULAR REVEAL THEME TRANSITION === */
         ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 0.5s; animation-timing-function: ease-in-out; }
         .theme-transition-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
@@ -71,6 +62,8 @@
                 <ul class="space-y-2">
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="dashboard.html">
                         <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="scan.html">
+                        <span class="material-symbols-outlined">document_scanner</span><span>AI Item Scanner</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="inventory.html">
                         <span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="consumables.html">

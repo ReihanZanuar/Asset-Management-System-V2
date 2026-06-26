@@ -10,6 +10,9 @@ const consumablesRoutes = require('./routes/consumables');
 const cannibalizationRoutes = require('./routes/cannibalization');
 const analyticsRoutes = require('./routes/analytics');
 const exportRoutes = require('./routes/export');
+const ocrRoutes = require('./routes/ocr');
+const stockAuditRoutes = require('./routes/stockAudits');
+const searchRoutes = require('./routes/search');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -39,6 +42,9 @@ app.use('/api/consumables', consumablesRoutes);
 app.use('/api/cannibalization', cannibalizationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/ocr', ocrRoutes);
+app.use('/api/stock-audits', stockAuditRoutes);
+app.use('/api/search', searchRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

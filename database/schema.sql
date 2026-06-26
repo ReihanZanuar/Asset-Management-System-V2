@@ -89,6 +89,33 @@ CREATE TABLE IF NOT EXISTS activity_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Stock opname audit sessions
+CREATE TABLE IF NOT EXISTS stock_audits (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'open',
+    created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    closed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Stock opname scanned items
+CREATE TABLE IF NOT EXISTS stock_audit_items (
+    id SERIAL PRIMARY KEY,
+    audit_id INTEGER NOT NULL REFERENCES stock_audits(id) ON DELETE CASCADE,
+    inventory_id INTEGER REFERENCES inventory(id) ON DELETE SET NULL,
+    scanned_code VARCHAR(50) NOT NULL,
+    status VARCHAR(30) NOT NULL,
+    expected_location VARCHAR(255),
+    found_location VARCHAR(255),
+    expected_condition VARCHAR(50),
+    found_condition VARCHAR(50),
+    notes TEXT,
+    scanned_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (audit_id, scanned_code)
+);
+
 -- Create indexes for better query performance
 CREATE INDEX IF NOT EXISTS idx_inventory_code ON inventory(code);
 CREATE INDEX IF NOT EXISTS idx_inventory_category ON inventory(category);
@@ -98,6 +125,8 @@ CREATE INDEX IF NOT EXISTS idx_loans_inventory_id ON loans(inventory_id);
 CREATE INDEX IF NOT EXISTS idx_consumables_name ON consumables(name);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_logs_action_type ON activity_logs(action_type);
+CREATE INDEX IF NOT EXISTS idx_stock_audit_items_audit_id ON stock_audit_items(audit_id);
+CREATE INDEX IF NOT EXISTS idx_stock_audit_items_status ON stock_audit_items(status);
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()

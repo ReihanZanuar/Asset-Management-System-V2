@@ -8,7 +8,7 @@ const THEME_KEY = 'ams-theme';
 const THEME_DARK = 'dark';
 const THEME_LIGHT = 'light';
 const DEFAULT_THEME = THEME_LIGHT;
-const ANIMATION_DURATION = 500; // 0.5s - balanced premium feel
+const ANIMATION_DURATION = 600; // 0.6s - smooth iOS-like feel
 
 /**
  * Get current theme from localStorage or return default
@@ -119,10 +119,10 @@ function useCustomCircularReveal(x, y) {
             overlay.style.animation = `circularReveal ${ANIMATION_DURATION}ms ease-in-out forwards`;
         });
         
-        // Toggle theme halfway through animation for smooth transition
+        // Toggle theme at optimal point for smooth transition
         setTimeout(() => {
             setTheme(newTheme);
-        }, ANIMATION_DURATION / 2);
+        }, ANIMATION_DURATION * 0.4);
         
         // Clean up after animation
         setTimeout(() => {

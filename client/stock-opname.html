@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Stock Opname - Asset Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="css/animations.css" rel="stylesheet"/>
+    <link href="css/background.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#004ac6', 'primary-container': '#2563eb', 'on-primary': '#ffffff',
+                        'on-primary-container': '#eeefff', 'background': '#f7f9fb', 'on-background': '#191c1e',
+                        'surface': '#f7f9fb', 'on-surface': '#191c1e', 'surface-container-lowest': '#ffffff',
+                        'surface-container-low': '#f2f4f6', 'surface-container': '#eceef0',
+                        'surface-container-high': '#e6e8ea', 'on-surface-variant': '#434655',
+                        'outline': '#737686', 'outline-variant': '#c3c6d7',
+                        'success-emerald': '#10B981', 'warning-amber': '#F59E0B',
+                        'critical-rose': '#E11D48', 'indigo-accent': '#4F46E5', 'slate-surface': '#1E293B'
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="js/theme.js"></script>
+    <style>
+        body { background-color: #f7f9fb; color: #191c1e; font-family: 'Inter', sans-serif; }
+        html.dark body { background-color: #0F172A; color: #F8FAFC; }
+    </style>
+</head>
+<body class="antialiased overflow-hidden">
+    <div class="flex h-screen w-full relative">
+        <nav class="hidden md:flex flex-col h-full py-6 px-4 bg-surface dark:bg-slate-surface border-r border-outline-variant dark:border-slate-700 fixed left-0 top-0 w-[280px] z-20">
+            <div class="mb-8 flex items-center space-x-3 px-3">
+                <div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-on-primary-container">science</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-primary dark:text-blue-400">Asset</h1>
+                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">Management System</p>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="scan.html"><span class="material-symbols-outlined">document_scanner</span><span>AI Item Scanner</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="inventory.html"><span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="stock-opname.html"><span class="material-symbols-outlined">fact_check</span><span>Stock Opname</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="loans.html"><span class="material-symbols-outlined">swap_horiz</span><span>Loans</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="analytics.html"><span class="material-symbols-outlined">bar_chart</span><span>Analytics</span></a></li>
+                </ul>
+            </div>
+            <div class="mt-auto pt-6 border-t border-outline-variant dark:border-slate-700">
+                <button onclick="api.auth.logout()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700">
+                    <span class="material-symbols-outlined">logout</span><span>Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <div class="flex-1 flex flex-col md:ml-[280px] h-screen overflow-hidden">
+            <header class="flex items-center justify-between px-8 h-16 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700">
+                <h2 class="text-xl font-semibold text-on-surface dark:text-white">Stock Opname</h2>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleThemeWithAnimation(event)" id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700">
+                        <span class="material-symbols-outlined dark:hidden">dark_mode</span>
+                        <span class="material-symbols-outlined hidden dark:inline">light_mode</span>
+                    </button>
+                    <button onclick="showAuditModal()" class="px-4 py-2 bg-primary-container hover:bg-primary text-white rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">add</span>New Audit
+                    </button>
+                    <button id="btn-export" onclick="exportAudit()" disabled class="px-4 py-2 bg-success-emerald hover:bg-success-emerald/90 text-white rounded-lg disabled:opacity-50 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">download</span>Export Excel
+                    </button>
+                    <button id="btn-close-audit" onclick="closeAudit()" disabled class="px-4 py-2 bg-critical-rose hover:bg-critical-rose/90 text-white rounded-lg disabled:opacity-50">Close Audit</button>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto p-8 bg-background dark:bg-[#0F172A] space-y-6">
+                <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 p-6">
+                        <label class="block text-sm text-on-surface-variant dark:text-gray-400 mb-2">Audit Session</label>
+                        <select id="audit-select" class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white"></select>
+                        <p id="audit-status" class="mt-3 text-sm text-on-surface-variant dark:text-gray-400">No audit selected</p>
+                    </div>
+                    <div class="lg:col-span-2 bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 p-6">
+                        <form id="scan-form" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                            <input id="scan-code" class="md:col-span-2 px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white" placeholder="Scan / type asset code" autocomplete="off">
+                            <input id="found-location" class="px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white" placeholder="Found location">
+                            <select id="found-condition" class="px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                                <option value="available">Available</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="damaged">Damaged</option>
+                            </select>
+                            <button class="py-2 bg-indigo-accent hover:bg-indigo-accent/90 text-white rounded">Scan</button>
+                            <textarea id="scan-notes" class="md:col-span-5 px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white" rows="2" placeholder="Notes (optional)"></textarea>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 p-4"><p class="text-sm text-on-surface-variant dark:text-gray-400">Scanned</p><p id="stat-scanned" class="text-2xl font-bold">0</p></div>
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 p-4"><p class="text-sm text-on-surface-variant dark:text-gray-400">Found</p><p id="stat-found" class="text-2xl font-bold text-success-emerald">0</p></div>
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 p-4"><p class="text-sm text-on-surface-variant dark:text-gray-400">Damaged</p><p id="stat-damaged" class="text-2xl font-bold text-critical-rose">0</p></div>
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 p-4"><p class="text-sm text-on-surface-variant dark:text-gray-400">Mismatch</p><p id="stat-mismatch" class="text-2xl font-bold text-warning-amber">0</p></div>
+                    <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 p-4"><p class="text-sm text-on-surface-variant dark:text-gray-400">Unknown</p><p id="stat-unknown" class="text-2xl font-bold text-on-surface-variant">0</p></div>
+                </section>
+
+                <section class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl border border-outline-variant dark:border-slate-700 overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-surface-container dark:bg-slate-900 border-b border-outline-variant dark:border-slate-700">
+                            <tr>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Code</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Name</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Status</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Expected Location</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Found Location</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Condition</th>
+                                <th class="p-4 text-left text-sm font-semibold text-on-surface-variant dark:text-gray-400">Scanned At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="audit-tbody" class="divide-y divide-outline-variant dark:divide-slate-700">
+                            <tr><td colspan="7" class="p-8 text-center text-on-surface-variant dark:text-gray-400">Create or select an audit session</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="audit-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4 border border-outline-variant dark:border-slate-700">
+            <h3 class="text-xl font-bold text-on-surface dark:text-white mb-4">New Stock Opname</h3>
+            <form id="audit-form" class="space-y-4">
+                <input id="audit-name" required class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white" placeholder="Audit name">
+                <div class="flex gap-3">
+                    <button class="flex-1 py-2 bg-primary-container hover:bg-primary text-white rounded">Create</button>
+                    <button type="button" onclick="hideAuditModal()" class="px-6 py-2 bg-surface-container-high dark:bg-slate-700 hover:bg-surface-container dark:hover:bg-slate-600 text-on-surface dark:text-white rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        if (!requireAuth()) location.href = 'login.html';
+
+        let audits = [];
+        let activeAudit = null;
+        let auditItems = [];
+
+        const auditSelect = document.getElementById('audit-select');
+        const scanCode = document.getElementById('scan-code');
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
+        }
+
+        function auditBadge(status) {
+            const classes = {
+                found: 'bg-green-500/20 text-green-400',
+                damaged: 'bg-red-500/20 text-red-400',
+                location_mismatch: 'bg-yellow-500/20 text-yellow-400',
+                unknown: 'bg-gray-500/20 text-gray-400',
+                missing: 'bg-red-500/20 text-red-400'
+            };
+            return classes[status] || 'bg-gray-500/20 text-gray-400';
+        }
+
+        function showAuditModal() {
+            document.getElementById('audit-form').reset();
+            document.getElementById('audit-modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('audit-name').focus(), 50);
+        }
+
+        function hideAuditModal() {
+            document.getElementById('audit-modal').classList.add('hidden');
+        }
+
+        async function loadAudits() {
+            audits = await api.stockAudits.getAll();
+            auditSelect.innerHTML = audits.length
+                ? audits.map(a => `<option value="${a.id}">${escapeHtml(a.name)} (${a.status})</option>`).join('')
+                : '<option value="">No audits yet</option>';
+            activeAudit = audits[0] || null;
+            if (activeAudit) auditSelect.value = activeAudit.id;
+            await loadActiveAudit();
+        }
+
+        async function loadActiveAudit() {
+            const id = auditSelect.value || activeAudit?.id;
+            activeAudit = audits.find(a => String(a.id) === String(id)) || null;
+            document.getElementById('btn-export').disabled = !activeAudit;
+            document.getElementById('btn-close-audit').disabled = !activeAudit || activeAudit.status !== 'open';
+            document.getElementById('audit-status').textContent = activeAudit ? `Status: ${activeAudit.status}` : 'No audit selected';
+
+            if (!activeAudit) {
+                auditItems = [];
+                renderItems();
+                return;
+            }
+
+            auditItems = await api.stockAudits.getItems(activeAudit.id);
+            renderItems();
+            setTimeout(() => scanCode.focus(), 50);
+        }
+
+        function renderItems() {
+            const counts = auditItems.reduce((acc, item) => {
+                acc[item.status] = (acc[item.status] || 0) + 1;
+                return acc;
+            }, {});
+            document.getElementById('stat-scanned').textContent = auditItems.length;
+            document.getElementById('stat-found').textContent = counts.found || 0;
+            document.getElementById('stat-damaged').textContent = counts.damaged || 0;
+            document.getElementById('stat-mismatch').textContent = counts.location_mismatch || 0;
+            document.getElementById('stat-unknown').textContent = counts.unknown || 0;
+
+            const tbody = document.getElementById('audit-tbody');
+            if (!auditItems.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-on-surface-variant dark:text-gray-400">${activeAudit ? 'No items scanned yet' : 'Create or select an audit session'}</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = auditItems.map(item => `
+                <tr class="text-on-surface dark:text-white hover:bg-surface-container-low dark:hover:bg-slate-700/50">
+                    <td class="p-4 font-mono text-sm">${escapeHtml(item.scanned_code)}</td>
+                    <td class="p-4">${escapeHtml(item.name || '-')}</td>
+                    <td class="p-4"><span class="px-2 py-1 rounded text-xs ${auditBadge(item.status)}">${escapeHtml(item.status)}</span></td>
+                    <td class="p-4 text-sm text-on-surface-variant dark:text-gray-400">${escapeHtml(item.expected_location || '-')}</td>
+                    <td class="p-4 text-sm">${escapeHtml(item.found_location || '-')}</td>
+                    <td class="p-4 text-sm">${escapeHtml(item.expected_condition || '-')} → ${escapeHtml(item.found_condition || '-')}</td>
+                    <td class="p-4 text-sm text-on-surface-variant dark:text-gray-400">${formatDate(item.scanned_at)}</td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('audit-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const audit = await api.stockAudits.create({ name: document.getElementById('audit-name').value });
+                hideAuditModal();
+                showToast('Audit created', 'success');
+                await loadAudits();
+                auditSelect.value = audit.id;
+                await loadActiveAudit();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        auditSelect.addEventListener('change', loadActiveAudit);
+
+        document.getElementById('scan-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!activeAudit) return showToast('Create/select an audit first', 'error');
+            if (activeAudit.status !== 'open') return showToast('Audit is closed', 'error');
+
+            const code = scanCode.value.trim();
+            if (!code) return;
+
+            try {
+                await api.stockAudits.scan(activeAudit.id, {
+                    code,
+                    found_location: document.getElementById('found-location').value,
+                    found_condition: document.getElementById('found-condition').value,
+                    notes: document.getElementById('scan-notes').value
+                });
+                scanCode.value = '';
+                document.getElementById('scan-notes').value = '';
+                await loadActiveAudit();
+                showToast('Scanned', 'success');
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        });
+
+        async function closeAudit() {
+            if (!activeAudit) return;
+            if (!await showConfirm('Tutup sesi stock opname ini?', { title: 'Close Audit', confirmText: 'Close' })) return;
+            try {
+                await api.stockAudits.close(activeAudit.id);
+                showToast('Audit closed', 'success');
+                await loadAudits();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        function exportAudit() {
+            if (!activeAudit) return;
+            downloadExcel(`/api/export/stock-audits/${activeAudit.id}`, `stock_opname_${activeAudit.id}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        loadAudits().catch(() => showToast('Failed to load audits', 'error'));
+    </script>
+</body>
+</html>

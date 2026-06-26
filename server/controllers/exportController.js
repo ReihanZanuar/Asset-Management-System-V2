@@ -263,6 +263,126 @@ const exportLoans = async (req, res) => {
 };
 
 // Export Consumables to Excel
+const exportStockAudit = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const audit = await query('SELECT * FROM stock_audits WHERE id = $1', [id]);
+        if (!audit.rows.length) return res.status(404).json({ error: 'Audit not found' });
+
+        const result = await query(`
+            SELECT * FROM (
+                SELECT
+                    COALESCE(inv.code, ai.scanned_code) as code,
+                    inv.name,
+                    inv.category,
+                    ai.status,
+                    ai.expected_location,
+                    ai.found_location,
+                    ai.expected_condition,
+                    ai.found_condition,
+                    ai.notes,
+                    ai.scanned_at
+                FROM stock_audit_items ai
+                LEFT JOIN inventory inv ON inv.id = ai.inventory_id
+                WHERE ai.audit_id = $1
+
+                UNION ALL
+
+                SELECT
+                    inv.code,
+                    inv.name,
+                    inv.category,
+                    'missing' as status,
+                    inv.location as expected_location,
+                    NULL as found_location,
+                    inv.condition as expected_condition,
+                    NULL as found_condition,
+                    NULL as notes,
+                    NULL as scanned_at
+                FROM inventory inv
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM stock_audit_items ai
+                    WHERE ai.audit_id = $1 AND ai.scanned_code = inv.code
+                )
+            ) rows
+            ORDER BY status, code
+        `, [id]);
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Stock Opname');
+
+        worksheet.mergeCells('A1:J1');
+        const titleCell = worksheet.getCell('A1');
+        titleCell.value = `Stock Opname: ${audit.rows[0].name}`;
+        titleCell.font = { size: 16, bold: true };
+        titleCell.alignment = { horizontal: 'center' };
+
+        worksheet.mergeCells('A2:J2');
+        const dateCell = worksheet.getCell('A2');
+        dateCell.value = `Exported on: ${new Date().toLocaleString()}`;
+        dateCell.font = { size: 10, italic: true };
+        dateCell.alignment = { horizontal: 'center' };
+
+        worksheet.getRow(4).values = [
+            'Code',
+            'Name',
+            'Category',
+            'Status',
+            'Expected Location',
+            'Found Location',
+            'Expected Condition',
+            'Found Condition',
+            'Notes',
+            'Scanned At'
+        ];
+
+        worksheet.getRow(4).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF4F46E5' }
+        };
+        worksheet.getRow(4).font = { color: { argb: 'FFFFFFFF' }, bold: true };
+        worksheet.getRow(4).alignment = { horizontal: 'center', vertical: 'middle' };
+
+        result.rows.forEach((item, index) => {
+            const row = worksheet.getRow(5 + index);
+            row.values = [
+                item.code,
+                item.name || '-',
+                item.category || '-',
+                item.status,
+                item.expected_location || '-',
+                item.found_location || '-',
+                item.expected_condition || '-',
+                item.found_condition || '-',
+                item.notes || '',
+                item.scanned_at ? new Date(item.scanned_at).toLocaleString() : '-'
+            ];
+        });
+
+        worksheet.columns = [
+            { width: 15 }, { width: 25 }, { width: 15 }, { width: 18 }, { width: 22 },
+            { width: 22 }, { width: 18 }, { width: 18 }, { width: 30 }, { width: 20 }
+        ];
+
+        res.setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename=stock_opname_${id}_${new Date().toISOString().split('T')[0]}.xlsx`
+        );
+
+        await workbook.xlsx.write(res);
+        res.end();
+    } catch (error) {
+        console.error('Export stock audit error:', error);
+        res.status(500).json({ error: 'Export failed' });
+    }
+};
+
+// Export Consumables to Excel
 const exportConsumables = async (req, res) => {
     try {
         const { lowStock } = req.query;
@@ -379,5 +499,6 @@ const exportConsumables = async (req, res) => {
 module.exports = {
     exportInventory,
     exportLoans,
-    exportConsumables
+    exportConsumables,
+    exportStockAudit
 };

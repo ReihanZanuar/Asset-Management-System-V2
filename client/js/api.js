@@ -264,6 +264,64 @@ const api = {
             return await api.request(`/analytics/reports?period=${period}`);
         },
     },
+
+    // Stock opname endpoints
+    stockAudits: {
+        async getAll() {
+            return await api.request('/stock-audits');
+        },
+
+        async create(data) {
+            return await api.request('/stock-audits', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        async getItems(id) {
+            return await api.request(`/stock-audits/${id}/items`);
+        },
+
+        async scan(id, data) {
+            return await api.request(`/stock-audits/${id}/scan`, {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        async close(id) {
+            return await api.request(`/stock-audits/${id}/close`, {
+                method: 'PUT',
+            });
+        },
+    },
+
+    // OCR endpoints
+    ocr: {
+        async scanImage(formData) {
+            const token = api.getToken();
+            const response = await fetch(`${API_BASE_URL}/ocr/scan`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData // multipart/form-data
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to scan image');
+            }
+            return data;
+        }
+    },
+
+    // Global search endpoint
+    search: {
+        async global(query, limit = 10) {
+            const params = new URLSearchParams({ q: query, limit });
+            return await api.request(`/search?${params.toString()}`);
+        }
+    },
 };
 
 // Check authentication on protected pages

@@ -1,0 +1,82 @@
+/**
+ * Dynamic Background System
+ * Smooth animated gradient background
+ * Clean and simple, no visual clutter
+ */
+
+/* === KEYFRAME ANIMATIONS === */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 100% 0%;
+  }
+  75% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* === LIGHT MODE BACKGROUND === */
+body {
+  background: linear-gradient(
+    -45deg,
+    #f7f9fb 0%,
+    #e8f0ff 25%,
+    #dbeafe 50%,
+    #f0e7ff 75%,
+    #f7f9fb 100%
+  );
+  background-size: 400% 400%;
+  background-attachment: fixed;
+  animation: gradientShift 15s ease infinite;
+  overflow-x: hidden;
+}
+
+/* === DARK MODE BACKGROUND === */
+html.dark body {
+  background: linear-gradient(
+    -45deg,
+    #0F172A 0%,
+    #1a2e5f 25%,
+    #162455 50%,
+    #2d1b4e 75%,
+    #0F172A 100%
+  );
+  background-size: 400% 400%;
+  background-attachment: fixed;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* === LAYER MANAGEMENT === */
+* {
+  position: relative;
+  z-index: 1;
+}
+
+body {
+  z-index: 0;
+}
+
+/* === ACCESSIBILITY: REDUCE MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    animation: none;
+    background: linear-gradient(to right, #f7f9fb, #e8f0ff, #dbeafe);
+  }
+
+  html.dark body {
+    background: linear-gradient(to right, #0F172A, #1a2e5f, #162455);
+  }
+}
+
+/* === SMOOTH SCROLL === */
+html {
+  scroll-behavior: smooth;
+}

@@ -6,6 +6,8 @@
     <title>Dashboard - Asset Management System</title>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="css/animations.css" rel="stylesheet"/>
+    <link href="css/background.css" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script>
         tailwind.config = {
@@ -108,24 +110,14 @@
             background: #64748B;
         }
 
-        /* === FLUID ANIMATIONS & TRANSITIONS (Optimized) === */
-        body { animation: pageFadeIn 0.3s ease-out; }
-        @keyframes pageFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        button, a { transition: transform 0.15s ease-out, opacity 0.15s ease-out, background-color 0.15s ease-out; }
-        button:hover { transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
-        nav a { transition: transform 0.2s ease-out, color 0.2s ease-out; }
-        nav a:hover { transform: translateX(4px); }
-        tbody tr { transition: background-color 0.15s ease-out; }
-        input, select, textarea { transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out; }
 
         /* === CIRCULAR REVEAL THEME TRANSITION === */
-        
+
         /* View Transitions API (Chrome 111+, Edge 111+) */
         ::view-transition-old(root),
         ::view-transition-new(root) {
-            animation-duration: 0.5s;
-            animation-timing-function: ease-in-out;
+            animation-duration: 0.6s;
+            animation-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
         }
 
         /* Custom circular reveal overlay (Firefox, Safari fallback) */
@@ -178,6 +170,12 @@
                         <a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="dashboard.html">
                             <span class="material-symbols-outlined">dashboard</span>
                             <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700 hover:text-on-surface dark:hover:text-white transition-colors" href="scan.html">
+                            <span class="material-symbols-outlined">document_scanner</span>
+                            <span>AI Item Scanner</span>
                         </a>
                     </li>
                     <li>
@@ -236,6 +234,23 @@
             <!-- TopNavBar -->
             <header class="flex items-center justify-between px-8 w-full h-16 bg-surface-container-lowest dark:bg-slate-800 border-b border-outline-variant dark:border-slate-700 shrink-0 z-10 sticky top-0">
                 <h2 class="text-xl font-semibold text-on-surface dark:text-white">Dashboard</h2>
+
+                <!-- Global Search Bar -->
+                <div class="flex-1 max-w-md mx-8 relative">
+                    <input
+                        type="text"
+                        id="global-search"
+                        placeholder="Search items, loans, consumables..."
+                        class="w-full px-4 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded-lg text-on-surface dark:text-white placeholder-on-surface-variant dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-blue-500 transition-colors"
+                    />
+                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 material-symbols-outlined text-on-surface-variant dark:text-gray-400 pointer-events-none">search</span>
+
+                    <!-- Search Results Dropdown -->
+                    <div id="search-results" class="hidden absolute top-full mt-2 left-0 right-0 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
                 <div class="flex items-center space-x-4">
                     <!-- Theme Toggle -->
                     <button onclick="toggleThemeWithAnimation(event)" id="theme-toggle" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white hover:bg-surface-container dark:hover:bg-slate-700 transition-colors">
@@ -441,6 +456,131 @@
 
         // Auto-refresh every 30 seconds
         setInterval(loadDashboard, 30000);
+
+        // Global Search Functionality
+        let searchTimeout;
+        const searchInput = document.getElementById('global-search');
+        const searchResults = document.getElementById('search-results');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                const query = e.target.value.trim();
+
+                if (query.length < 2) {
+                    searchResults.classList.add('hidden');
+                    return;
+                }
+
+                // Debounce search API call
+                searchTimeout = setTimeout(async () => {
+                    try {
+                        const results = await api.search.global(query);
+                        displaySearchResults(results);
+                    } catch (error) {
+                        console.error('Search error:', error);
+                        searchResults.innerHTML = '<div class="p-4 text-center text-on-surface-variant dark:text-gray-400">Search failed</div>';
+                        searchResults.classList.remove('hidden');
+                    }
+                }, 300);
+            });
+
+            // Close search results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.relative')) {
+                    searchResults.classList.add('hidden');
+                }
+            });
+        }
+
+        function displaySearchResults(results) {
+            if (results.total === 0) {
+                searchResults.innerHTML = '<div class="p-4 text-center text-on-surface-variant dark:text-gray-400">No results found</div>';
+                searchResults.classList.remove('hidden');
+                return;
+            }
+
+            let html = '';
+
+            // Inventory results
+            if (results.inventory.length > 0) {
+                html += '<div class="border-b border-outline-variant dark:border-slate-700"><div class="px-4 py-2 text-xs font-semibold text-on-surface-variant dark:text-gray-500 bg-surface-container dark:bg-slate-900 uppercase">Inventory</div>';
+                results.inventory.forEach(item => {
+                    html += `
+                        <a href="inventory.html#item-${item.id}" class="block px-4 py-3 hover:bg-surface-container dark:hover:bg-slate-700 border-b border-outline-variant dark:border-slate-800 last:border-b-0 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="material-symbols-outlined text-primary dark:text-blue-400">inventory_2</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-on-surface dark:text-white truncate">${item.name}</p>
+                                    <p class="text-xs text-on-surface-variant dark:text-gray-400">${item.code}</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            // Loans results
+            if (results.loans.length > 0) {
+                html += '<div class="border-b border-outline-variant dark:border-slate-700"><div class="px-4 py-2 text-xs font-semibold text-on-surface-variant dark:text-gray-500 bg-surface-container dark:bg-slate-900 uppercase">Loans</div>';
+                results.loans.forEach(loan => {
+                    html += `
+                        <a href="loans.html#loan-${loan.id}" class="block px-4 py-3 hover:bg-surface-container dark:hover:bg-slate-700 border-b border-outline-variant dark:border-slate-800 last:border-b-0 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="material-symbols-outlined text-indigo-accent">swap_horiz</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-on-surface dark:text-white truncate">${loan.borrower_name}</p>
+                                    <p class="text-xs text-on-surface-variant dark:text-gray-400">${loan.item_code}</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            // Consumables results
+            if (results.consumables.length > 0) {
+                html += '<div class="border-b border-outline-variant dark:border-slate-700"><div class="px-4 py-2 text-xs font-semibold text-on-surface-variant dark:text-gray-500 bg-surface-container dark:bg-slate-900 uppercase">Consumables</div>';
+                results.consumables.forEach(item => {
+                    html += `
+                        <a href="consumables.html#consumable-${item.id}" class="block px-4 py-3 hover:bg-surface-container dark:hover:bg-slate-700 border-b border-outline-variant dark:border-slate-800 last:border-b-0 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="material-symbols-outlined text-warning-amber">category</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-on-surface dark:text-white truncate">${item.name}</p>
+                                    <p class="text-xs text-on-surface-variant dark:text-gray-400">${item.code} • Stock: ${item.stock_quantity}</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            // Cannibalization results
+            if (results.cannibalization.length > 0) {
+                html += '<div><div class="px-4 py-2 text-xs font-semibold text-on-surface-variant dark:text-gray-500 bg-surface-container dark:bg-slate-900 uppercase">Cannibalization</div>';
+                results.cannibalization.forEach(item => {
+                    html += `
+                        <a href="cannibalization.html#cannibalization-${item.id}" class="block px-4 py-3 hover:bg-surface-container dark:hover:bg-slate-700 border-b border-outline-variant dark:border-slate-800 last:border-b-0 transition-colors">
+                            <div class="flex items-center space-x-3">
+                                <span class="material-symbols-outlined text-critical-rose">build_circle</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-on-surface dark:text-white truncate">${item.source_item_code} → ${item.target_item_code}</p>
+                                    <p class="text-xs text-on-surface-variant dark:text-gray-400">${item.reason}</p>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            searchResults.innerHTML = html;
+            searchResults.classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
