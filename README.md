@@ -32,16 +32,20 @@
 - 🔄 **Loan Tracking** - Sistem peminjaman dan pengembalian barang
 - 📊 **Consumables Monitoring** - Tracking barang habis pakai dengan alert low stock
 - 📈 **Real-time Dashboard** - Metrics dan activity monitoring
-- 🔍 **Advanced Search & Filter** - Quick find untuk semua data
+- 🔍 **Advanced Search** - Full-text search for inventory items
+- 🎯 **OCR Scanning** - Barcode/item recognition via camera or image upload
+- 📋 **Stock Audit/Opname** - Comprehensive inventory audit system with reconciliation
 - 📱 **Responsive Design** - Works on desktop dan mobile
 
 ### Technical Features
-- ⚡ REST API with 30+ endpoints
+- ⚡ REST API with 35+ endpoints
 - 🗄️ PostgreSQL database dengan relational schema
 - 🔒 Secure password hashing (bcrypt)
 - 📝 Activity logging untuk audit trail
 - 🎨 Modern UI dengan Tailwind CSS
 - 🚀 Fast performance (< 100ms avg response time)
+- 📸 OCR & Image processing capabilities
+- 🔎 Full-text search functionality
 
 ---
 
@@ -240,7 +244,24 @@ Default Credentials:
 - Automatic low stock alerts
 - Track location and notes
 
----
+#### 5. OCR Scanning
+- Scan items using camera or upload images
+- Automatic item recognition via OCR
+- Quick item lookup and tracking
+- Real-time barcode/code recognition
+
+#### 6. Stock Audit/Opname
+- Create comprehensive inventory audits
+- Record physical inventory counts
+- Reconcile expected vs actual stock
+- Generate audit reports
+- Track discrepancies and anomalies
+
+#### 7. Search & Filter
+- Full-text search across all items
+- Search loans by borrower or item name
+- Advanced filtering capabilities
+- Quick navigation to specific records
 
 ## 📚 API Documentation
 
@@ -300,6 +321,30 @@ GET    /api/analytics/dashboard   - Get dashboard metrics
 GET    /api/analytics/reports     - Get detailed reports
 ```
 
+#### OCR Scanning
+```http
+POST   /api/ocr/scan              - Scan item via camera/image (OCR recognition)
+POST   /api/ocr/upload            - Upload image for OCR processing
+```
+
+#### Search
+```http
+GET    /api/search                - Full-text search across inventory
+GET    /api/search/items          - Search inventory items
+GET    /api/search/loans          - Search loans by borrower/item
+GET    /api/search/consumables    - Search consumables
+```
+
+#### Stock Audits
+```http
+GET    /api/stock-audits          - Get all stock audits
+GET    /api/stock-audits/:id      - Get specific audit details
+POST   /api/stock-audits          - Create new stock audit
+PUT    /api/stock-audits/:id      - Update audit
+PUT    /api/stock-audits/:id/complete - Mark audit as complete
+DELETE /api/stock-audits/:id      - Delete audit
+```
+
 ### Example Request
 
 ```bash
@@ -330,7 +375,10 @@ ams-smk/
 │   │   ├── loansController.js
 │   │   ├── consumablesController.js
 │   │   ├── cannibalizationController.js
-│   │   └── analyticsController.js
+│   │   ├── analyticsController.js
+│   │   ├── ocrController.js         # OCR scanning logic
+│   │   ├── searchController.js      # Full-text search
+│   │   └── stockAuditController.js  # Stock audit/opname
 │   ├── middleware/
 │   │   └── auth.js              # JWT authentication
 │   ├── routes/                  # API routes
@@ -339,7 +387,10 @@ ams-smk/
 │   │   ├── loans.js
 │   │   ├── consumables.js
 │   │   ├── cannibalization.js
-│   │   └── analytics.js
+│   │   ├── analytics.js
+│   │   ├── ocr.js               # OCR endpoints
+│   │   ├── search.js            # Search endpoints
+│   │   └── stockAudits.js       # Stock audit endpoints
 │   ├── scripts/
 │   │   └── setupDatabase.js     # Database setup script
 │   ├── index.js                 # Main server file
@@ -348,14 +399,18 @@ ams-smk/
 │   └── .env.example             # Environment template
 │
 ├── client/                      # Frontend application
+│   ├── css/                     # Stylesheets (animations, background, etc)
 │   ├── js/
 │   │   ├── api.js               # API service layer
+│   │   ├── theme.js             # Theme/dark mode management
 │   │   └── utils.js             # Utility functions
 │   ├── login.html               # Login page
 │   ├── dashboard.html           # Dashboard
 │   ├── inventory.html           # Inventory management
 │   ├── loans.html               # Loan management
-│   └── consumables.html         # Consumables management
+│   ├── consumables.html         # Consumables management
+│   ├── scan.html                # OCR scanner page
+│   └── stock-opname.html        # Stock audit/opname page
 │
 ├── database/
 │   ├── schema.sql               # Database schema
@@ -561,17 +616,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔮 Roadmap
 
-### Version 1.1 (Coming Soon)
-- [ ] Export to Excel/PDF
+### Version 1.1 (In Progress)
+- [x] Export to Excel/PDF
+- [x] Barcode/QR code scanning (OCR)
+- [x] Stock audit/opname system
+- [x] Full-text search functionality
 - [ ] Email notifications for overdue loans
-- [ ] Barcode/QR code scanning
 - [ ] Advanced analytics charts
+- [ ] Mobile app PWA
 
 ### Version 2.0 (Future)
 - [ ] Mobile app (React Native)
-- [ ] Multi-lab support
+- [ ] Multi-lab/branch support
 - [ ] Role-based access control (RBAC)
-- [ ] Automated inventory audits
+- [ ] Automated scheduled audits
+- [ ] Integration with external supplier systems
 
 ---
 
