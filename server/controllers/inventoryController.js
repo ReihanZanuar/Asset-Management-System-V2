@@ -1,5 +1,6 @@
 const { query } = require('../config/database');
 const { deleteImages } = require('../middleware/upload');
+const QRCode = require('qrcode');
 
 // Get all inventory items
 const getAllInventory = async (req, res) => {
@@ -189,7 +190,7 @@ const deleteInventory = async (req, res) => {
 const getInventoryStats = async (req, res) => {
     try {
         const stats = await query(`
-            SELECT 
+            SELECT
                 COUNT(*) as total,
                 COUNT(CASE WHEN condition = 'available' THEN 1 END) as available,
                 COUNT(CASE WHEN condition = 'borrowed' THEN 1 END) as borrowed,
@@ -205,11 +206,60 @@ const getInventoryStats = async (req, res) => {
     }
 };
 
+// Generate QR code for inventory item with comprehensive data
+const generateQRCode = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await query('SELECT * FROM inventory WHERE id = $1', [id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Item not found' });
+        }
+
+        const item = result.rows[0];
+
+        // Create comprehensive data object to encode in QR code
+        const qrData = {
+            id: item.id,
+            code: item.code,
+            name: item.name,
+            category: item.category,
+            location: item.location,
+            condition: item.condition,
+            purchase_date: item.purchase_date,
+            specifications: item.specifications,
+            notes: item.notes
+        };
+
+        // Generate QR code as data URL
+        const qrCodeUrl = await QRCode.toDataURL(JSON.stringify(qrData), {
+            errorCorrectionLevel: 'H',
+            type: 'image/png',
+            width: 300,
+            margin: 1,
+            color: {
+                dark: '#000000',
+                light: '#FFFFFF'
+            }
+        });
+
+        res.json({
+            success: true,
+            qrCode: qrCodeUrl,
+            itemData: qrData
+        });
+    } catch (error) {
+        console.error('Generate QR code error:', error);
+        res.status(500).json({ error: 'Failed to generate QR code' });
+    }
+};
+
 module.exports = {
     getAllInventory,
     getInventoryById,
     createInventory,
     updateInventory,
     deleteInventory,
-    getInventoryStats
+    getInventoryStats,
+    generateQRCode
 };
