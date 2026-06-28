@@ -229,6 +229,9 @@ Default Credentials:
 
 #### 2. Inventory Management
 - Add new equipment with details (code, name, category, specs)
+- Upload multiple photos (JPEG, PNG, WebP, HEIC)
+- Drag-drop images or copy-paste from clipboard
+- HEIC photos auto-convert to JPEG with optimized compression
 - Edit existing items
 - Delete items (with confirmation)
 - Search by name or code
