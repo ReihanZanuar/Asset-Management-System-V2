@@ -234,6 +234,31 @@ const api = {
         },
     },
 
+    // Consumable Uses endpoints
+    consumableUses: {
+        async getAll(params = {}) {
+            const query = new URLSearchParams(params).toString();
+            return await api.request(`/consumable-uses?${query}`);
+        },
+
+        async getByConsumableId(consumableId) {
+            return await api.request(`/consumable-uses/consumable/${consumableId}`);
+        },
+
+        async create(data) {
+            return await api.request('/consumable-uses', {
+                method: 'POST',
+                body: JSON.stringify(data),
+            });
+        },
+
+        async delete(id) {
+            return await api.request(`/consumable-uses/${id}`, {
+                method: 'DELETE',
+            });
+        },
+    },
+
     // Cannibalization endpoints
     cannibalization: {
         async getAll() {

@@ -68,6 +68,8 @@
                         <span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="consumables.html">
                         <span class="material-symbols-outlined">category</span><span>Consumables</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="uses.html">
+                        <span class="material-symbols-outlined">check_circle</span><span>Uses</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="loans.html">
                         <span class="material-symbols-outlined">swap_horiz</span><span>Loans</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="cannibalization.html">
@@ -183,6 +185,21 @@
         </div>
     </div>
 
+    <!-- Usage History Modal -->
+    <div id="usage-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-surface-container-lowest dark:bg-slate-800 rounded-xl p-6 w-full max-w-2xl mx-4 border border-outline-variant dark:border-slate-700 max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="usage-modal-title" class="text-xl font-bold text-on-surface dark:text-white">Usage History</h3>
+                <button onclick="hideUsageModal()" class="text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="usage-content" class="space-y-4">
+                <!-- Usage records will be displayed here -->
+            </div>
+        </div>
+    </div>
+
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
     <script>
@@ -223,10 +240,10 @@
                 const isLow = item.quantity <= item.min_threshold;
                 const statusColor = isLow ? 'text-critical-rose dark:text-red-400' : 'text-success-emerald dark:text-green-400';
                 const statusText = isLow ? 'Low Stock' : 'In Stock';
-                
+
                 return `
                     <tr class="text-on-surface dark:text-white hover:bg-surface-container-low dark:hover:bg-slate-700/50 ${isLow ? 'bg-critical-rose/5 dark:bg-red-500/5' : ''}">
-                        <td class="p-4 font-medium">${item.name}</td>
+                        <td class="p-4 font-medium cursor-pointer text-primary dark:text-blue-400 hover:underline" onclick="viewUsageHistory(${item.id}, '${item.name}')">${item.name}</td>
                         <td class="p-4">
                             <span class="text-xl font-bold ${isLow ? 'text-critical-rose dark:text-red-400' : 'text-on-surface dark:text-white'}">${item.quantity}</span>
                         </td>
@@ -287,6 +304,70 @@
                 loadConsumables();
             } catch (error) {
                 showToast('Failed to delete', 'error');
+            }
+        }
+
+        function hideModal() {
+            document.getElementById('item-modal').classList.add('hidden');
+        }
+
+        function hideUsageModal() {
+            document.getElementById('usage-modal').classList.add('hidden');
+        }
+
+        async function viewUsageHistory(consumableId, consumableName) {
+            try {
+                document.getElementById('usage-modal-title').textContent = `Usage History - ${consumableName}`;
+                document.getElementById('usage-content').innerHTML = '<div class="text-center py-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary dark:border-blue-500 mx-auto"></div><p class="text-on-surface-variant dark:text-gray-400 mt-2">Loading...</p></div>';
+                document.getElementById('usage-modal').classList.remove('hidden');
+
+                const uses = await api.consumableUses.getByConsumableId(consumableId);
+
+                if (uses.length === 0) {
+                    document.getElementById('usage-content').innerHTML = '<div class="p-6 text-center"><span class="material-symbols-outlined text-4xl text-on-surface-variant dark:text-gray-400">info</span><p class="text-on-surface-variant dark:text-gray-400 mt-3 font-medium">Barang masih belum digunakan di Uses</p></div>';
+                    return;
+                }
+
+                const currentItem = currentData.find(i => i.id === consumableId);
+                const unit = currentItem ? currentItem.unit : '-';
+
+                const html = uses.map(use => {
+                    const date = new Date(use.used_at).toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    return `
+                        <div class="bg-surface-container dark:bg-slate-700 p-4 rounded-lg border border-outline-variant dark:border-slate-600">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-on-surface-variant dark:text-gray-400">Quantity Used</p>
+                                    <p class="text-lg font-bold text-primary dark:text-blue-400">${use.quantity_used} ${unit}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-on-surface-variant dark:text-gray-400">Date</p>
+                                    <p class="text-sm text-on-surface dark:text-white">${date}</p>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-xs text-on-surface-variant dark:text-gray-400">Location</p>
+                                <p class="text-sm text-on-surface dark:text-white">${use.location || '-'}</p>
+                            </div>
+                            <div class="mt-3">
+                                <p class="text-xs text-on-surface-variant dark:text-gray-400">Used By</p>
+                                <p class="text-sm text-on-surface dark:text-white">${use.used_by_name || 'Unknown'}</p>
+                            </div>
+                            ${use.notes ? `<div class="mt-3"><p class="text-xs text-on-surface-variant dark:text-gray-400">Notes</p><p class="text-sm text-on-surface dark:text-white">${use.notes}</p></div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('usage-content').innerHTML = html;
+            } catch (error) {
+                document.getElementById('usage-content').innerHTML = `<div class="text-center py-4"><p class="text-critical-rose dark:text-red-400">${error.message || 'Failed to load usage history'}</p></div>`;
             }
         }
 
