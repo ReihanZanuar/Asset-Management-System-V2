@@ -72,6 +72,8 @@
                         <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="scan.html">
                         <span class="material-symbols-outlined">document_scanner</span><span>AI Item Scanner</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent dark:text-indigo-400" href="inventory.html" aria-current="page">
+                        <span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="consumables.html">
                         <span class="material-symbols-outlined">category</span><span>Consumables</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="uses.html">
@@ -306,6 +308,7 @@
                     <button onclick="showAuditModal()" class="px-3 py-2 bg-primary-container hover:bg-primary text-white rounded-lg text-sm">New Audit</button>
                     <button id="btn-export" onclick="exportAudit()" disabled class="px-3 py-2 bg-success-emerald hover:bg-success-emerald/90 text-white rounded-lg disabled:opacity-50 text-sm">Export</button>
                     <button id="btn-close-audit" onclick="closeAudit()" disabled class="px-3 py-2 bg-critical-rose hover:bg-critical-rose/90 text-white rounded-lg disabled:opacity-50 text-sm">Close Audit</button>
+                    <button id="btn-delete-audit" onclick="deleteAuditSession()" disabled class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50 text-sm flex items-center gap-1"><span class="material-symbols-outlined text-sm">delete</span>Delete</button>
                     <button onclick="closeStockOpnameOverlay()" class="w-9 h-9 rounded-full bg-surface-container dark:bg-slate-700 hover:bg-surface-container-high dark:hover:bg-slate-600 flex items-center justify-center text-on-surface dark:text-white"><span class="material-symbols-outlined">close</span></button>
                 </div>
             </div>
@@ -377,6 +380,7 @@
 
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/animations.js"></script>
     <script>
         if (!requireAuth()) location.href = 'login.html';
 
@@ -403,8 +407,14 @@
         }
 
         async function openStockOpnameOverlay() {
-            document.getElementById('stock-opname-overlay').classList.remove('hidden');
-            await loadAudits();
+            try {
+                document.getElementById('stock-opname-overlay').classList.remove('hidden');
+                await loadAudits();
+            } catch (error) {
+                console.error('Error opening Stock Opname:', error);
+                showToast('Failed to load Stock Opname', 'error');
+                closeStockOpnameOverlay();
+            }
         }
 
         function closeStockOpnameOverlay() {
@@ -422,14 +432,22 @@
         }
 
         async function loadAudits() {
-            audits = await api.stockAudits.getAll();
-            const auditSelect = document.getElementById('audit-select');
-            auditSelect.innerHTML = audits.length
-                ? audits.map(a => `<option value="${a.id}">${escapeHtml(a.name)} (${a.status})</option>`).join('')
-                : '<option value="">No audits yet</option>';
-            activeAudit = audits[0] || null;
-            if (activeAudit) auditSelect.value = activeAudit.id;
-            await loadActiveAudit();
+            try {
+                audits = await Promise.race([
+                    api.stockAudits.getAll(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+                ]);
+                const auditSelect = document.getElementById('audit-select');
+                auditSelect.innerHTML = audits.length
+                    ? audits.map(a => `<option value="${a.id}">${escapeHtml(a.name)} (${a.status})</option>`).join('')
+                    : '<option value="">No audits yet</option>';
+                activeAudit = audits[0] || null;
+                if (activeAudit) auditSelect.value = activeAudit.id;
+                await loadActiveAudit();
+            } catch (error) {
+                console.error('Error loading audits:', error);
+                showToast('Failed to load audits', 'error');
+            }
         }
 
         async function loadActiveAudit() {
@@ -438,6 +456,7 @@
             activeAudit = audits.find(a => String(a.id) === String(id)) || null;
             document.getElementById('btn-export').disabled = !activeAudit;
             document.getElementById('btn-close-audit').disabled = !activeAudit || activeAudit.status !== 'open';
+            document.getElementById('btn-delete-audit').disabled = !activeAudit;
             document.getElementById('audit-status').textContent = activeAudit ? `Status: ${activeAudit.status}` : 'No audit selected';
 
             if (!activeAudit) {
@@ -446,9 +465,19 @@
                 return;
             }
 
-            auditItems = await api.stockAudits.getItems(activeAudit.id);
-            renderAuditItems();
-            setTimeout(() => document.getElementById('scan-code').focus(), 50);
+            try {
+                auditItems = await Promise.race([
+                    api.stockAudits.getItems(activeAudit.id),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+                ]);
+                renderAuditItems();
+                setTimeout(() => document.getElementById('scan-code').focus(), 50);
+            } catch (error) {
+                console.error('Error loading audit items:', error);
+                showToast('Failed to load audit items', 'error');
+                auditItems = [];
+                renderAuditItems();
+            }
         }
 
         function renderAuditItems() {
@@ -528,6 +557,18 @@
             try {
                 await api.stockAudits.close(activeAudit.id);
                 showToast('Audit closed', 'success');
+                await loadAudits();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function deleteAuditSession() {
+            if (!activeAudit) return;
+            if (!await showConfirm('Yakin ingin menghapus sesi stock opname ini beserta semua datanya?', { title: 'Hapus Audit', confirmText: 'Hapus' })) return;
+            try {
+                await api.stockAudits.delete(activeAudit.id);
+                showToast('Audit deleted', 'success');
                 await loadAudits();
             } catch (error) {
                 showToast(error.message, 'error');
@@ -812,7 +853,7 @@
             `).join('');
         }
 
-        function showAddModal() {
+        async function showAddModal() {
             document.getElementById('modal-title').textContent = 'Add Inventory Item';
             document.getElementById('item-form').reset();
             document.getElementById('item-images').value = ''; // Explicitly clear file input
@@ -821,6 +862,19 @@
             imagesToKeep = [];
             document.getElementById('image-preview-gallery').innerHTML = '';
             document.getElementById('image-preview-gallery').classList.add('hidden');
+            // Auto-generate code
+            const codeInput = document.getElementById('code');
+            codeInput.value = 'Loading...';
+            codeInput.readOnly = true;
+            codeInput.classList.add('opacity-60', 'cursor-not-allowed');
+            try {
+                const res = await api.inventory.getNextCode();
+                codeInput.value = res.code;
+            } catch {
+                codeInput.value = '';
+                codeInput.readOnly = false;
+                codeInput.classList.remove('opacity-60', 'cursor-not-allowed');
+            }
             document.getElementById('item-modal').classList.remove('hidden');
         }
 
@@ -829,7 +883,10 @@
                 const item = await api.inventory.getById(id);
                 document.getElementById('modal-title').textContent = 'Edit Inventory Item';
                 document.getElementById('item-id').value = item.id;
-                document.getElementById('code').value = item.code;
+                const codeInput = document.getElementById('code');
+                codeInput.value = item.code;
+                codeInput.readOnly = false;
+                codeInput.classList.remove('opacity-60', 'cursor-not-allowed');
                 document.getElementById('name').value = item.name;
                 document.getElementById('category').value = item.category || '';
                 document.getElementById('condition').value = item.condition;

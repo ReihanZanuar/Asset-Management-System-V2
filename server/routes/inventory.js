@@ -9,7 +9,8 @@ const {
     updateInventory,
     deleteInventory,
     getInventoryStats,
-    generateQRCode
+    generateQRCode,
+    getNextCode
 } = require('../controllers/inventoryController');
 
 // Public routes (require authentication)
@@ -20,6 +21,9 @@ router.get('/', getAllInventory);
 
 // GET /api/inventory/stats - Get inventory statistics
 router.get('/stats', getInventoryStats);
+
+// GET /api/inventory/next-code - Generate next available code
+router.get('/next-code', getNextCode);
 
 // GET /api/inventory/:id - Get single inventory item
 router.get('/:id', getInventoryById);

@@ -183,11 +183,29 @@ const closeAudit = async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 };
+const deleteAudit = async (req, res) => {
+    try {
+        await ensureTables();
+        const { id } = req.params;
+        const result = await query(
+            'DELETE FROM stock_audits WHERE id = $1 RETURNING *',
+            [id]
+        );
+        if (!result.rows.length) return res.status(404).json({ error: 'Audit not found' });
+
+        await logActivity(req.user.id, 'DELETE', result.rows[0].id, `Deleted stock opname: ${result.rows[0].name}`);
+        res.json({ message: 'Audit deleted successfully' });
+    } catch (error) {
+        console.error('Delete stock audit error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
 
 module.exports = {
     getAudits,
     createAudit,
     getAuditItems,
     scanAuditItem,
-    closeAudit
+    closeAudit,
+    deleteAudit
 };

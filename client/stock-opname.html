@@ -51,8 +51,11 @@
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="scan.html"><span class="material-symbols-outlined">document_scanner</span><span>AI Item Scanner</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="inventory.html"><span class="material-symbols-outlined">inventory_2</span><span>Inventory</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="consumables.html"><span class="material-symbols-outlined">category</span><span>Consumables</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="uses.html"><span class="material-symbols-outlined">check_circle</span><span>Uses</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-indigo-accent/10 text-indigo-accent font-bold border-r-4 border-indigo-accent" href="stock-opname.html"><span class="material-symbols-outlined">fact_check</span><span>Stock Opname</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="loans.html"><span class="material-symbols-outlined">swap_horiz</span><span>Loans</span></a></li>
+                    <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="cannibalization.html"><span class="material-symbols-outlined">build_circle</span><span>Cannibalization</span></a></li>
                     <li><a class="flex items-center space-x-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-gray-400 hover:bg-surface-container dark:hover:bg-slate-700" href="analytics.html"><span class="material-symbols-outlined">bar_chart</span><span>Analytics</span></a></li>
                 </ul>
             </div>
@@ -78,6 +81,7 @@
                         <span class="material-symbols-outlined text-sm">download</span>Export Excel
                     </button>
                     <button id="btn-close-audit" onclick="closeAudit()" disabled class="px-4 py-2 bg-critical-rose hover:bg-critical-rose/90 text-white rounded-lg disabled:opacity-50">Close Audit</button>
+                    <button id="btn-delete-audit" onclick="deleteAuditSession()" disabled class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg disabled:opacity-50">Delete Audit</button>
                 </div>
             </header>
 
@@ -148,6 +152,7 @@
 
     <script src="js/api.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/animations.js"></script>
     <script>
         if (!requireAuth()) location.href = 'login.html';
 
@@ -198,6 +203,7 @@
             activeAudit = audits.find(a => String(a.id) === String(id)) || null;
             document.getElementById('btn-export').disabled = !activeAudit;
             document.getElementById('btn-close-audit').disabled = !activeAudit || activeAudit.status !== 'open';
+            document.getElementById('btn-delete-audit').disabled = !activeAudit;
             document.getElementById('audit-status').textContent = activeAudit ? `Status: ${activeAudit.status}` : 'No audit selected';
 
             if (!activeAudit) {
@@ -287,6 +293,18 @@
             try {
                 await api.stockAudits.close(activeAudit.id);
                 showToast('Audit closed', 'success');
+                await loadAudits();
+            } catch (error) {
+                showToast(error.message, 'error');
+            }
+        }
+
+        async function deleteAuditSession() {
+            if (!activeAudit) return;
+            if (!await showConfirm('Yakin ingin menghapus sesi stock opname ini beserta semua datanya?', { title: 'Hapus Audit', confirmText: 'Hapus' })) return;
+            try {
+                await api.stockAudits.delete(activeAudit.id);
+                showToast('Audit deleted', 'success');
                 await loadAudits();
             } catch (error) {
                 showToast(error.message, 'error');

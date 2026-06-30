@@ -14,7 +14,10 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
-      - ./database/seed.sql:/docker-entrypoint-initdb.d/2-seed.sql
+      - ./database/migration_stock_audits.sql:/docker-entrypoint-initdb.d/2-migration_stock_audits.sql
+      - ./database/migration_add_images.sql:/docker-entrypoint-initdb.d/3-migration_add_images.sql
+      - ./database/migration_consumable_uses.sql:/docker-entrypoint-initdb.d/4-migration_consumable_uses.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/5-seed.sql
     networks:
       - ams-network
     healthcheck:

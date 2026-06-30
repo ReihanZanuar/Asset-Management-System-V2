@@ -134,6 +134,10 @@ const api = {
         async getStats() {
             return await api.request('/inventory/stats');
         },
+
+        async getNextCode() {
+            return await api.request('/inventory/next-code');
+        },
         
         // Create inventory item with images (FormData)
         async createWithImages(formData) {
@@ -311,6 +315,12 @@ const api = {
             return await api.request(`/stock-audits/${id}/scan`, {
                 method: 'POST',
                 body: JSON.stringify(data),
+            });
+        },
+
+        async delete(id) {
+            return await api.request(`/stock-audits/${id}`, {
+                method: 'DELETE',
             });
         },
 

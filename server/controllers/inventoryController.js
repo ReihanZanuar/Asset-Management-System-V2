@@ -254,6 +254,27 @@ const generateQRCode = async (req, res) => {
     }
 };
 
+// Generate next available inventory code (INV-XXX-NNN)
+const getNextCode = async (req, res) => {
+    try {
+        const result = await query(
+            `SELECT code FROM inventory WHERE code ~ '^INV-[A-Z]+-[0-9]+$' ORDER BY code DESC LIMIT 1`
+        );
+        let nextCode = 'INV-ITEM-001';
+        if (result.rows.length > 0) {
+            const last = result.rows[0].code; // e.g. INV-PC-102
+            const parts = last.split('-');
+            const num = parseInt(parts[parts.length - 1], 10) + 1;
+            const prefix = parts.slice(0, parts.length - 1).join('-');
+            nextCode = `${prefix}-${String(num).padStart(3, '0')}`;
+        }
+        res.json({ code: nextCode });
+    } catch (error) {
+        console.error('Get next code error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
 module.exports = {
     getAllInventory,
     getInventoryById,
@@ -261,5 +282,6 @@ module.exports = {
     updateInventory,
     deleteInventory,
     getInventoryStats,
-    generateQRCode
+    generateQRCode,
+    getNextCode
 };

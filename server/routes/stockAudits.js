@@ -6,7 +6,8 @@ const {
     createAudit,
     getAuditItems,
     scanAuditItem,
-    closeAudit
+    closeAudit,
+    deleteAudit
 } = require('../controllers/stockAuditController');
 
 router.use(authenticateToken);
@@ -16,5 +17,6 @@ router.post('/', createAudit);
 router.get('/:id/items', getAuditItems);
 router.post('/:id/scan', scanAuditItem);
 router.put('/:id/close', closeAudit);
+router.delete('/:id', deleteAudit);
 
 module.exports = router;
