@@ -449,6 +449,31 @@ CREATE INDEX idx_consumables_quantity ON consumables(quantity);
 DELETE FROM activity_logs WHERE created_at < NOW() - INTERVAL '6 months';
 ```
 
+### 18. PWA (Progressive Web App) Issues
+
+#### Symptom: Update Kode/Tampilan Baru Tidak Muncul di Browser Client (Stuck Cache)
+
+**Penyebab**: Service Worker meng-cache aset statis agar loading cepat, tetapi terkadang browser terus menggunakan versi cache lama.
+
+**Solusi bagi Pengguna (Client Browser)**:
+1. Lakukan **Hard Refresh**:
+   - Windows/Linux: `Ctrl + F5` atau `Ctrl + Shift + R`.
+   - Mac: `Cmd + Shift + R`.
+2. Di Google Chrome (Desktop):
+   - Klik kanan -> Inspect -> Pilih tab **Application**.
+   - Pilih menu **Service Workers** di bagian kiri.
+   - Centang **Bypass for network** atau klik **Unregister** untuk memaksa reload.
+3. Di HP: Tutup aplikasi sepenuhnya dari multitasking drawer, hapus cache browser, lalu buka kembali.
+
+#### Symptom: Tombol "Install" Tidak Muncul di Browser
+
+**Penyebab**: Aplikasi tidak berjalan di HTTPS (atau bukan `localhost` jika di environment development), atau konfigurasi `manifest.json` diblokir.
+
+**Solusi**:
+1. Pastikan domain menggunakan protokol aman **HTTPS** (syarat wajib PWA dari browser).
+2. Jika development lokal, pastikan URL menggunakan `http://localhost` (bukan IP mentah seperti `http://192.168.x.x` karena browser menganggap IP sebagai koneksi tidak aman).
+3. Buka Chrome DevTools -> tab **Application** -> **Manifest** untuk melihat pesan error spesifik dari browser.
+
 ---
 
 ## 📞 Getting Help

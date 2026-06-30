@@ -271,6 +271,12 @@ Default Credentials:
 - Advanced filtering capabilities
 - Quick navigation to specific records
 
+#### 8. Progressive Web App (PWA)
+- **Mobile Experience**: Install the application on iOS, Android, or Desktop.
+- **Offline Capabilities**: Fast loading and offline access to key assets and shells thanks to Service Worker caching.
+- **Standalone Mode**: Launches without browser URL bar for a native app feel.
+
+
 ## 📚 API Documentation
 
 ### Base URL
@@ -634,7 +640,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] WhatsApp Notification & Alert System (via Fonnte)
 - [ ] Email notifications for overdue loans
 - [ ] Advanced analytics charts
-- [ ] Mobile app PWA
+- [x] Mobile app PWA
 
 ### Version 2.0 (Future)
 - [ ] Mobile app (React Native)
