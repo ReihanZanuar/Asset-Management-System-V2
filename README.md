@@ -638,8 +638,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Stock audit/opname system
 - [x] Full-text search functionality
 - [x] WhatsApp Notification & Alert System (via Fonnte)
-- [ ] Email notifications for overdue loans
-- [ ] Advanced analytics charts
+- [x] Advanced analytics charts
 - [x] Mobile app PWA
 
 ### Version 2.0 (Future)

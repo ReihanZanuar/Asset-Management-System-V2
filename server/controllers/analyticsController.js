@@ -57,7 +57,7 @@ const getAnalyticsReports = async (req, res) => {
     try {
         const { period = '30' } = req.query; // days
 
-        const [categoryDistribution, loanTrends, topBorrowed] = await Promise.all([
+        const [categoryDistribution, loanTrends, topBorrowed, lowStockConsumables] = await Promise.all([
             // Inventory by category
             query(`
                 SELECT category, COUNT(*) as count
@@ -84,13 +84,21 @@ const getAnalyticsReports = async (req, res) => {
                 GROUP BY i.id, i.name, i.code
                 ORDER BY borrow_count DESC
                 LIMIT 10
+            `),
+            // Low stock consumables for charts
+            query(`
+                SELECT name, quantity, min_threshold
+                FROM consumables
+                ORDER BY quantity ASC
+                LIMIT 8
             `)
         ]);
 
         res.json({
             category_distribution: categoryDistribution.rows,
             loan_trends: loanTrends.rows,
-            top_borrowed: topBorrowed.rows
+            top_borrowed: topBorrowed.rows,
+            low_stock_consumables: lowStockConsumables.rows
         });
     } catch (error) {
         console.error('Get analytics reports error:', error);
