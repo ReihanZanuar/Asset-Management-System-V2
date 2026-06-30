@@ -6,7 +6,8 @@ const {
     createLoan, 
     returnLoan,
     getActiveLoans,
-    getOverdueLoans
+    getOverdueLoans,
+    remindLoan
 } = require('../controllers/loansController');
 
 router.use(authenticateToken);
@@ -16,5 +17,6 @@ router.get('/active', getActiveLoans);
 router.get('/overdue', getOverdueLoans);
 router.post('/', createLoan);
 router.put('/:id/return', returnLoan);
+router.post('/:id/remind', remindLoan);
 
 module.exports = router;

@@ -31,6 +31,7 @@
     <script src="js/theme.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1/build/qrcode.min.js"></script>
     <style>
         body { background-color: #f7f9fb; color: #191c1e; font-family: 'Inter', sans-serif; }
         html.dark body { background-color: #0F172A; color: #F8FAFC; }
@@ -147,121 +148,278 @@
 
             <!-- Scrollable Canvas -->
             <main class="flex-1 overflow-y-auto p-8 bg-background dark:bg-[#0F172A]">
-                <div class="max-w-7xl mx-auto space-y-8">
-                    <!-- Header -->
-                    <div>
-                        <h2 class="text-3xl font-bold text-on-surface dark:text-white">Asset Scanner</h2>
-                        <p class="text-on-surface-variant dark:text-gray-400 mt-2">Scan asset QR/barcode labels, or extract item names from images.</p>
+                <div class="max-w-7xl mx-auto space-y-6">
+                    <!-- Tabs Header -->
+                    <div class="flex border-b border-outline-variant dark:border-slate-700 bg-surface-container-lowest dark:bg-slate-800 p-2 rounded-xl shadow-sm">
+                        <button id="tab-scanner" class="flex-1 md:flex-none px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200">
+                            <span class="material-symbols-outlined text-sm">qr_code_scanner</span>
+                            Scanner & Extractor
+                        </button>
+                        <button id="tab-bulk-qr" class="flex-1 md:flex-none px-6 py-2.5 rounded-lg text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200">
+                            <span class="material-symbols-outlined text-sm">print</span>
+                            Bulk QR Printing
+                        </button>
                     </div>
 
-                    <!-- QR/Barcode Scanner -->
-                    <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 space-y-4 shadow-sm">
-                        <div class="flex items-center justify-between gap-4">
-                            <div>
-                                <h3 class="text-lg font-semibold text-on-surface dark:text-white">QR / Barcode Scanner</h3>
-                                <p class="text-sm text-on-surface-variant dark:text-gray-400">Scan label dari Inventory → auto cari item.</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button id="btn-start-qr" class="px-4 py-2 bg-indigo-accent hover:bg-indigo-accent/90 text-white rounded-lg flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-sm">qr_code_scanner</span>Start
-                                </button>
-                                <button id="btn-stop-qr" class="hidden px-4 py-2 bg-critical-rose hover:bg-critical-rose/90 text-white rounded-lg">Stop</button>
-                            </div>
+                    <!-- TAB 1: Scanner & Extractor Section -->
+                    <div id="scanner-section" class="space-y-8">
+                        <!-- Header -->
+                        <div>
+                            <h2 class="text-3xl font-bold text-on-surface dark:text-white">Asset Scanner</h2>
+                            <p class="text-on-surface-variant dark:text-gray-400 mt-2">Scan asset QR/barcode labels, or extract item names from images.</p>
                         </div>
-                        <div id="qr-reader" class="hidden overflow-hidden rounded-lg border border-outline-variant dark:border-slate-700"></div>
-                        <div id="qr-result" class="hidden p-4 rounded-lg bg-surface-container dark:bg-slate-700/50 border border-outline-variant dark:border-slate-700"></div>
-                    </div>
 
-                    <div>
-                        <h2 class="text-2xl font-bold text-on-surface dark:text-white">Image Extractor</h2>
-                        <p class="text-on-surface-variant dark:text-gray-400 mt-2">Upload or capture an image containing a list of item names to automatically extract and import them into the inventory.</p>
-                    </div>
-
-                    <!-- Split Panels Grid -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <!-- Left Panel: Upload Area & Controls -->
-                        <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 space-y-6 shadow-sm">
-                            <h3 class="text-lg font-semibold text-on-surface dark:text-white">1. Input Image</h3>
-
-                            <!-- Drag & Drop Zone -->
-                            <div id="drop-zone" class="border-2 border-dashed border-outline-variant dark:border-slate-600 rounded-xl p-8 text-center flex flex-col items-center justify-center cursor-pointer hover:border-primary dark:hover:border-blue-500 hover:bg-surface-container-low dark:hover:bg-slate-700/50 transition-all duration-200">
-                                <span class="material-symbols-outlined text-4xl text-outline dark:text-slate-400 mb-3">upload_file</span>
-                                <p class="text-sm font-medium text-on-surface dark:text-white">Drag & drop your image here, or <span class="text-primary dark:text-blue-400 underline">browse</span></p>
-                                <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-2">Supports JPG, PNG, WebP up to 10MB</p>
-                                <input type="file" id="image-file" class="hidden" accept="image/jpeg,image/png,image/webp">
-                            </div>
-
-                            <!-- Preview Area -->
-                            <div id="preview-container" class="hidden space-y-3">
-                                <p class="text-sm font-medium text-on-surface-variant dark:text-gray-400">Selected Image Preview:</p>
-                                <div class="relative w-full max-h-64 rounded-lg overflow-hidden border border-outline-variant dark:border-slate-700 bg-surface-container dark:bg-slate-900">
-                                    <img id="image-preview" src="" alt="Selected Preview" class="w-full max-h-64 object-contain mx-auto" />
-                                    <button id="btn-remove-image" class="absolute top-2 right-2 p-1.5 bg-critical-rose text-white rounded-full hover:bg-rose-600 transition-colors shadow">
-                                        <span class="material-symbols-outlined text-sm block">close</span>
+                        <!-- QR/Barcode Scanner -->
+                        <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 space-y-4 shadow-sm">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-on-surface dark:text-white">QR / Barcode Scanner</h3>
+                                    <p class="text-sm text-on-surface-variant dark:text-gray-400">Scan label dari Inventory → auto cari item.</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button id="btn-start-qr" class="px-4 py-2 bg-indigo-accent hover:bg-indigo-accent/90 text-white rounded-lg flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-sm">qr_code_scanner</span>Start
                                     </button>
+                                    <button id="btn-stop-qr" class="hidden px-4 py-2 bg-critical-rose hover:bg-critical-rose/90 text-white rounded-lg">Stop</button>
                                 </div>
                             </div>
-
-                            <!-- Method Toggle -->
-                            <div class="space-y-3">
-                                <p class="text-sm font-medium text-on-surface dark:text-white">Extraction Engine:</p>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <label class="flex items-center gap-3 p-3 border border-outline-variant dark:border-slate-700 rounded-lg cursor-pointer hover:bg-surface-container-low dark:hover:bg-slate-700 transition-all">
-                                        <input type="radio" name="extraction-method" value="gemini" checked class="text-primary focus:ring-primary dark:focus:ring-blue-500">
-                                        <div>
-                                            <p class="text-sm font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
-                                                Smart AI
-                                                <span class="px-1.5 py-0.5 text-[10px] font-bold bg-indigo-accent text-white rounded">Gemini</span>
-                                            </p>
-                                            <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-0.5">High accuracy (needs API key)</p>
-                                        </div>
-                                    </label>
-                                    <label class="flex items-center gap-3 p-3 border border-outline-variant dark:border-slate-700 rounded-lg cursor-pointer hover:bg-surface-container-low dark:hover:bg-slate-700 transition-all">
-                                        <input type="radio" name="extraction-method" value="tesseract" class="text-primary focus:ring-primary dark:focus:ring-blue-500">
-                                        <div>
-                                            <p class="text-sm font-semibold text-on-surface dark:text-white">Local OCR</p>
-                                            <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-0.5">Offline & 100% free</p>
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Actions -->
-                            <button id="btn-scan" disabled class="w-full py-3 bg-primary-container text-white rounded-lg flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary transition-all">
-                                <span class="material-symbols-outlined text-xl">play_circle</span>
-                                Extract Item Names
-                            </button>
+                            <div id="qr-reader" class="hidden overflow-hidden rounded-lg border border-outline-variant dark:border-slate-700"></div>
+                            <div id="qr-result" class="hidden p-4 rounded-lg bg-surface-container dark:bg-slate-700/50 border border-outline-variant dark:border-slate-700"></div>
                         </div>
 
-                        <!-- Right Panel: Extracted List -->
-                        <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 flex flex-col h-full max-h-[580px] shadow-sm">
-                            <div class="flex justify-between items-center mb-4 shrink-0">
-                                <h3 class="text-lg font-semibold text-on-surface dark:text-white">2. Extracted Item Names</h3>
-                                <div id="extracted-count" class="text-xs font-semibold px-2 py-1 rounded bg-indigo-accent/15 text-indigo-accent">0 items</div>
-                            </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-on-surface dark:text-white">Image Extractor</h2>
+                            <p class="text-on-surface-variant dark:text-gray-400 mt-2">Upload or capture an image containing a list of item names to automatically extract and import them into the inventory.</p>
+                        </div>
 
-                            <!-- List Area -->
-                            <div id="list-container" class="flex-1 overflow-y-auto pr-1 space-y-3 min-h-[300px]">
-                                <!-- Empty state -->
-                                <div id="empty-state" class="h-full flex flex-col items-center justify-center text-center p-8 text-outline dark:text-slate-400">
-                                    <span class="material-symbols-outlined text-5xl mb-3">list_alt</span>
-                                    <p class="text-sm font-medium">No items extracted yet</p>
-                                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">Select an image on the left and run the extractor to generate a list here.</p>
+                        <!-- Split Panels Grid -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Left Panel: Upload Area & Controls -->
+                            <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 space-y-6 shadow-sm">
+                                <h3 class="text-lg font-semibold text-on-surface dark:text-white">1. Input Image</h3>
+
+                                <!-- Drag & Drop Zone -->
+                                <div id="drop-zone" class="border-2 border-dashed border-outline-variant dark:border-slate-600 rounded-xl p-8 text-center flex flex-col items-center justify-center cursor-pointer hover:border-primary dark:hover:border-blue-500 hover:bg-surface-container-low dark:hover:bg-slate-700/50 transition-all duration-200">
+                                    <span class="material-symbols-outlined text-4xl text-outline dark:text-slate-400 mb-3">upload_file</span>
+                                    <p class="text-sm font-medium text-on-surface dark:text-white">Drag & drop your image here, or <span class="text-primary dark:text-blue-400 underline">browse</span></p>
+                                    <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-2">Supports JPG, PNG, WebP up to 10MB</p>
+                                    <input type="file" id="image-file" class="hidden" accept="image/jpeg,image/png,image/webp">
                                 </div>
 
-                                <!-- Scanning Indicator -->
-                                <div id="scan-progress" class="hidden h-full flex flex-col items-center justify-center p-8">
-                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-blue-500"></div>
-                                    <p id="progress-text" class="text-sm font-medium text-on-surface dark:text-white mt-4">Extracting text...</p>
-                                    <!-- Progress Bar for Tesseract -->
-                                    <div id="progress-bar-container" class="w-64 bg-surface-container rounded-full h-2 mt-3 overflow-hidden hidden">
-                                        <div id="progress-bar-value" class="bg-primary h-full w-0 transition-all duration-100"></div>
+                                <!-- Preview Area -->
+                                <div id="preview-container" class="hidden space-y-3">
+                                    <p class="text-sm font-medium text-on-surface-variant dark:text-gray-400">Selected Image Preview:</p>
+                                    <div class="relative w-full max-h-64 rounded-lg overflow-hidden border border-outline-variant dark:border-slate-700 bg-surface-container dark:bg-slate-900">
+                                        <img id="image-preview" src="" alt="Selected Preview" class="w-full max-h-64 object-contain mx-auto" />
+                                        <button id="btn-remove-image" class="absolute top-2 right-2 p-1.5 bg-critical-rose text-white rounded-full hover:bg-rose-600 transition-colors shadow">
+                                            <span class="material-symbols-outlined text-sm block">close</span>
+                                        </button>
                                     </div>
                                 </div>
 
-                                <!-- Actual List -->
-                                <ul id="item-ul" class="space-y-3 hidden">
-                                </ul>
+                                <!-- Method Toggle -->
+                                <div class="space-y-3">
+                                    <p class="text-sm font-medium text-on-surface dark:text-white">Extraction Engine:</p>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <label class="flex items-center gap-3 p-3 border border-outline-variant dark:border-slate-700 rounded-lg cursor-pointer hover:bg-surface-container-low dark:hover:bg-slate-700 transition-all">
+                                            <input type="radio" name="extraction-method" value="gemini" checked class="text-primary focus:ring-primary dark:focus:ring-blue-500">
+                                            <div>
+                                                <p class="text-sm font-semibold text-on-surface dark:text-white flex items-center gap-1.5">
+                                                    Smart AI
+                                                    <span class="px-1.5 py-0.5 text-[10px] font-bold bg-indigo-accent text-white rounded">Gemini</span>
+                                                </p>
+                                                <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-0.5">High accuracy (needs API key)</p>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-center gap-3 p-3 border border-outline-variant dark:border-slate-700 rounded-lg cursor-pointer hover:bg-surface-container-low dark:hover:bg-slate-700 transition-all">
+                                            <input type="radio" name="extraction-method" value="tesseract" class="text-primary focus:ring-primary dark:focus:ring-blue-500">
+                                            <div>
+                                                <p class="text-sm font-semibold text-on-surface dark:text-white">Local OCR</p>
+                                                <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-0.5">Offline & 100% free</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Actions -->
+                                <button id="btn-scan" disabled class="w-full py-3 bg-primary-container text-white rounded-lg flex items-center justify-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary transition-all">
+                                    <span class="material-symbols-outlined text-xl">play_circle</span>
+                                    Extract Item Names
+                                </button>
+                            </div>
+
+                            <!-- Right Panel: Extracted List -->
+                            <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 flex flex-col h-full max-h-[580px] shadow-sm">
+                                <div class="flex justify-between items-center mb-4 shrink-0">
+                                    <h3 class="text-lg font-semibold text-on-surface dark:text-white">2. Extracted Item Names</h3>
+                                    <div id="extracted-count" class="text-xs font-semibold px-2 py-1 rounded bg-indigo-accent/15 text-indigo-accent">0 items</div>
+                                </div>
+
+                                <!-- List Area -->
+                                <div id="list-container" class="flex-1 overflow-y-auto pr-1 space-y-3 min-h-[300px]">
+                                    <!-- Empty state -->
+                                    <div id="empty-state" class="h-full flex flex-col items-center justify-center text-center p-8 text-outline dark:text-slate-400">
+                                        <span class="material-symbols-outlined text-5xl mb-3">list_alt</span>
+                                        <p class="text-sm font-medium">No items extracted yet</p>
+                                        <p class="text-xs text-on-surface-variant dark:text-gray-400 mt-1">Select an image on the left and run the extractor to generate a list here.</p>
+                                    </div>
+
+                                    <!-- Scanning Indicator -->
+                                    <div id="scan-progress" class="hidden h-full flex flex-col items-center justify-center p-8">
+                                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary dark:border-blue-500"></div>
+                                        <p id="progress-text" class="text-sm font-medium text-on-surface dark:text-white mt-4">Extracting text...</p>
+                                        <!-- Progress Bar for Tesseract -->
+                                        <div id="progress-bar-container" class="w-64 bg-surface-container rounded-full h-2 mt-3 overflow-hidden hidden">
+                                            <div id="progress-bar-value" class="bg-primary h-full w-0 transition-all duration-100"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Actual List -->
+                                    <ul id="item-ul" class="space-y-3 hidden">
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Bulk QR Code Printing Section -->
+                    <div id="bulk-qr-section" class="hidden space-y-6">
+                        <div>
+                            <h2 class="text-3xl font-bold text-on-surface dark:text-white">Bulk QR Code Printing</h2>
+                            <p class="text-on-surface-variant dark:text-gray-400 mt-2">Cari barang inventaris, tambahkan ke daftar antrean cetak, lalu cetak label QR dalam jumlah banyak sekaligus.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            <!-- Left: Search & Select (5 cols) -->
+                            <div class="lg:col-span-5 bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 space-y-4 shadow-sm flex flex-col h-[620px]">
+                                <h3 class="text-lg font-semibold text-on-surface dark:text-white flex items-center gap-2">
+                                    <span class="material-symbols-outlined">search_check</span>
+                                    1. Cari & Pilih Barang
+                                </h3>
+
+                                <div class="space-y-3 shrink-0">
+                                    <input type="text" id="bulk-search-input" placeholder="Masukkan nama atau kode barang..."
+                                        class="w-full px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white placeholder:text-on-surface-variant dark:placeholder:text-gray-400 focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+                                    
+                                    <div class="flex gap-2">
+                                        <select id="bulk-category-filter" class="flex-1 px-3 py-2 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white text-sm">
+                                            <option value="">Semua Kategori</option>
+                                        </select>
+                                        <button id="btn-add-all-search" class="px-3 py-2 bg-indigo-accent hover:bg-indigo-accent/90 text-white rounded text-sm font-semibold flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-xs">playlist_add</span>Semua
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Search Results List -->
+                                <div class="flex-1 overflow-y-auto pr-1">
+                                    <ul id="bulk-search-results-ul" class="space-y-2">
+                                        <div class="text-center py-12 text-outline dark:text-slate-400">
+                                            <span class="material-symbols-outlined text-4xl block mb-2">find_in_page</span>
+                                            <p class="text-sm">Ketik di pencarian untuk memuat barang...</p>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Right: Print Queue & Settings (7 cols) -->
+                            <div class="lg:col-span-7 space-y-6">
+                                <!-- Print Queue -->
+                                <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 shadow-sm flex flex-col h-[400px]">
+                                    <div class="flex justify-between items-center mb-4 shrink-0">
+                                        <h3 class="text-lg font-semibold text-on-surface dark:text-white flex items-center gap-2">
+                                            <span class="material-symbols-outlined">list_alt</span>
+                                            2. Antrean Cetak
+                                        </h3>
+                                        <div class="flex items-center gap-3">
+                                            <div id="bulk-queue-count" class="text-xs font-semibold px-2.5 py-1 rounded bg-indigo-accent/15 text-indigo-accent">0 barang dipilih</div>
+                                            <button id="btn-clear-queue" class="text-xs text-critical-rose hover:underline font-semibold flex items-center gap-0.5">
+                                                <span class="material-symbols-outlined text-xs block">delete_sweep</span>Bersihkan
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-2 bg-surface-container dark:bg-slate-700/50 rounded-lg text-xs font-semibold text-on-surface-variant dark:text-gray-400 mb-2 shrink-0">
+                                        <label class="flex items-center gap-2 cursor-pointer pl-1">
+                                            <input type="checkbox" id="chk-select-all" checked class="rounded text-primary focus:ring-primary">
+                                            <span>Pilih Semua</span>
+                                        </label>
+                                        <span>Aksi</span>
+                                    </div>
+
+                                    <div class="flex-1 overflow-y-auto pr-1">
+                                        <ul id="bulk-queue-ul" class="space-y-2">
+                                            <div class="text-center py-16 text-outline dark:text-slate-400">
+                                                <span class="material-symbols-outlined text-4xl block mb-2">qr_code</span>
+                                                <p class="text-sm">Antrean kosong. Tambahkan barang dari panel kiri.</p>
+                                            </div>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Print Settings & Button -->
+                                <div class="bg-surface-container-lowest dark:bg-slate-800 border border-outline-variant dark:border-slate-700 rounded-xl p-6 shadow-sm space-y-4">
+                                    <h3 class="text-lg font-semibold text-on-surface dark:text-white flex items-center gap-2">
+                                        <span class="material-symbols-outlined">settings</span>
+                                        3. Pengaturan Cetak
+                                    </h3>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                        <div class="space-y-1">
+                                            <label class="block font-medium text-on-surface dark:text-white">Kolom Layout</label>
+                                            <select id="print-cols" class="w-full px-2.5 py-1.5 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                                                <option value="2">2 Kolom</option>
+                                                <option value="3" selected>3 Kolom</option>
+                                                <option value="4">4 Kolom</option>
+                                                <option value="5">5 Kolom</option>
+                                                <option value="6">6 Kolom</option>
+                                            </select>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="block font-medium text-on-surface dark:text-white">Ukuran Label</label>
+                                            <select id="print-size" class="w-full px-2.5 py-1.5 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                                                <option value="sm">Kecil (60px)</option>
+                                                <option value="md" selected>Sedang (100px)</option>
+                                                <option value="lg">Besar (150px)</option>
+                                            </select>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label class="block font-medium text-on-surface dark:text-white">Ukuran Kertas</label>
+                                            <select id="print-paper" class="w-full px-2.5 py-1.5 bg-surface-container dark:bg-slate-700 border border-outline-variant dark:border-slate-600 rounded text-on-surface dark:text-white">
+                                                <option value="A4" selected>A4</option>
+                                                <option value="Letter">Letter</option>
+                                                <option value="continuous">Continuous / Label Roll</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block font-medium text-sm text-on-surface dark:text-white">Tampilkan Informasi Tambahan:</label>
+                                        <div class="flex flex-wrap gap-4 text-sm">
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-on-surface-variant dark:text-gray-300">
+                                                <input type="checkbox" id="show-print-name" checked class="rounded text-primary focus:ring-primary">
+                                                Nama Barang
+                                            </label>
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-on-surface-variant dark:text-gray-300">
+                                                <input type="checkbox" id="show-print-code" checked class="rounded text-primary focus:ring-primary">
+                                                Kode Barang
+                                            </label>
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-on-surface-variant dark:text-gray-300">
+                                                <input type="checkbox" id="show-print-location" checked class="rounded text-primary focus:ring-primary">
+                                                Lokasi
+                                            </label>
+                                            <label class="flex items-center gap-1.5 cursor-pointer text-on-surface-variant dark:text-gray-300">
+                                                <input type="checkbox" id="show-print-category" checked class="rounded text-primary focus:ring-primary">
+                                                Kategori
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button id="btn-print-bulk" class="w-full py-3 bg-indigo-accent hover:bg-indigo-accent/90 text-white rounded-lg flex items-center justify-center gap-2 font-medium shadow transition-all duration-200">
+                                        <span class="material-symbols-outlined">print</span>
+                                        Cetak Label QR Pilihan
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -764,6 +922,379 @@
                 showToast(error.message || 'Failed to save item', 'error');
             }
         });
+
+        // ==========================================
+        // BULK QR CODE PRINTING TAB LOGIC
+        // ==========================================
+
+        const tabScanner = document.getElementById('tab-scanner');
+        const tabBulkQr = document.getElementById('tab-bulk-qr');
+        const scannerSection = document.getElementById('scanner-section');
+        const bulkQrSection = document.getElementById('bulk-qr-section');
+
+        // Tab Switcher
+        tabScanner.addEventListener('click', () => {
+            switchTab('scanner');
+        });
+        tabBulkQr.addEventListener('click', () => {
+            switchTab('bulk-qr');
+            initBulkQrTab();
+        });
+
+        function switchTab(tab) {
+            if (tab === 'scanner') {
+                tabScanner.className = "flex-1 md:flex-none px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200";
+                tabBulkQr.className = "flex-1 md:flex-none px-6 py-2.5 rounded-lg text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200";
+                scannerSection.classList.remove('hidden');
+                bulkQrSection.classList.add('hidden');
+            } else {
+                tabBulkQr.className = "flex-1 md:flex-none px-6 py-2.5 rounded-lg bg-primary text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200";
+                tabScanner.className = "flex-1 md:flex-none px-6 py-2.5 rounded-lg text-on-surface-variant dark:text-gray-400 hover:text-on-surface dark:hover:text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200";
+                scannerSection.classList.add('hidden');
+                bulkQrSection.classList.remove('hidden');
+            }
+        }
+
+        // Bulk QR States
+        let bulkInventoryItems = [];
+        let bulkQueue = [];
+        let searchTimeout = null;
+
+        const bulkSearchInput = document.getElementById('bulk-search-input');
+        const bulkCategoryFilter = document.getElementById('bulk-category-filter');
+        const bulkSearchResultsUl = document.getElementById('bulk-search-results-ul');
+        const bulkQueueUl = document.getElementById('bulk-queue-ul');
+        const bulkQueueCount = document.getElementById('bulk-queue-count');
+        const btnClearQueue = document.getElementById('btn-clear-queue');
+        const chkSelectAll = document.getElementById('chk-select-all');
+        const btnPrintBulk = document.getElementById('btn-print-bulk');
+        const btnAddAllSearch = document.getElementById('btn-add-all-search');
+
+        async function initBulkQrTab() {
+            // Load categories dynamically
+            try {
+                const items = await api.inventory.getAll();
+                const categories = [...new Set(items.map(item => item.category).filter(Boolean))];
+                bulkCategoryFilter.innerHTML = '<option value="">Semua Kategori</option>' + 
+                    categories.map(cat => `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`).join('');
+            } catch (err) {
+                console.error("Failed to load categories", err);
+            }
+            triggerSearch();
+        }
+
+        // Debounced Search
+        bulkSearchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(triggerSearch, 300);
+        });
+
+        bulkCategoryFilter.addEventListener('change', triggerSearch);
+
+        async function triggerSearch() {
+            const query = bulkSearchInput.value.trim();
+            const category = bulkCategoryFilter.value;
+
+            bulkSearchResultsUl.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    <p class="text-sm mt-3 text-on-surface-variant dark:text-gray-400">Mencari barang...</p>
+                </div>`;
+
+            try {
+                const params = {};
+                if (query) params.search = query;
+                if (category) params.category = category;
+                
+                bulkInventoryItems = await api.inventory.getAll(params);
+                renderSearchResults();
+            } catch (err) {
+                showToast("Gagal memuat barang: " + err.message, "error");
+                bulkSearchResultsUl.innerHTML = `<li class="text-center py-6 text-critical-rose font-semibold">${escapeHtml(err.message)}</li>`;
+            }
+        }
+
+        function renderSearchResults() {
+            if (bulkInventoryItems.length === 0) {
+                bulkSearchResultsUl.innerHTML = `
+                    <div class="text-center py-12 text-outline dark:text-slate-400">
+                        <span class="material-symbols-outlined text-4xl block mb-2">sentiment_dissatisfied</span>
+                        <p class="text-sm">Barang tidak ditemukan.</p>
+                    </div>`;
+                return;
+            }
+
+            bulkSearchResultsUl.innerHTML = bulkInventoryItems.map(item => {
+                const inQueue = bulkQueue.some(q => q.id === item.id);
+                return `
+                    <li class="flex items-center justify-between p-3 bg-surface-container dark:bg-slate-700/30 border border-outline-variant dark:border-slate-700 rounded-lg hover:border-primary dark:hover:border-blue-500 transition-all">
+                        <div class="min-w-0 flex-1 pr-2">
+                            <p class="font-semibold text-sm text-on-surface dark:text-white truncate">${escapeHtml(item.name)}</p>
+                            <p class="text-xs text-on-surface-variant dark:text-gray-400 truncate">${escapeHtml(item.code)} · ${escapeHtml(item.location || 'Tanpa Lokasi')}</p>
+                        </div>
+                        <button onclick="addToQueue(${item.id})" ${inQueue ? 'disabled' : ''}
+                            class="px-2.5 py-1 bg-primary text-white hover:bg-primary/90 disabled:bg-surface-container-high dark:disabled:bg-slate-700 disabled:text-outline text-xs font-semibold rounded transition-colors flex items-center gap-0.5">
+                            <span class="material-symbols-outlined text-sm">${inQueue ? 'done' : 'add'}</span>
+                            ${inQueue ? 'Ada' : 'Tambah'}
+                        </button>
+                    </li>`;
+            }).join('');
+        }
+
+        window.addToQueue = function(itemId) {
+            const item = bulkInventoryItems.find(i => i.id === itemId);
+            if (item && !bulkQueue.some(q => q.id === itemId)) {
+                bulkQueue.push({ ...item, checked: true });
+                renderQueue();
+                renderSearchResults();
+            }
+        };
+
+        // Add all matching search results to queue
+        btnAddAllSearch.addEventListener('click', () => {
+            let addedCount = 0;
+            bulkInventoryItems.forEach(item => {
+                if (!bulkQueue.some(q => q.id === item.id)) {
+                    bulkQueue.push({ ...item, checked: true });
+                    addedCount++;
+                }
+            });
+            if (addedCount > 0) {
+                showToast(`Menambahkan ${addedCount} barang ke antrean.`, 'success');
+                renderQueue();
+                renderSearchResults();
+            } else {
+                showToast('Semua barang hasil pencarian sudah di antrean.', 'info');
+            }
+        });
+
+        // Queue Management
+        function renderQueue() {
+            const checkedCount = bulkQueue.filter(q => q.checked).length;
+            bulkQueueCount.textContent = `${checkedCount} dari ${bulkQueue.length} dipilih`;
+            chkSelectAll.checked = bulkQueue.length > 0 && checkedCount === bulkQueue.length;
+
+            if (bulkQueue.length === 0) {
+                bulkQueueUl.innerHTML = `
+                    <div class="text-center py-16 text-outline dark:text-slate-400">
+                        <span class="material-symbols-outlined text-4xl block mb-2">qr_code</span>
+                        <p class="text-sm">Antrean kosong. Tambahkan barang dari panel kiri.</p>
+                    </div>`;
+                return;
+            }
+
+            bulkQueueUl.innerHTML = bulkQueue.map((item, index) => `
+                <li class="flex items-center justify-between p-3 bg-surface-container dark:bg-slate-700/50 border border-outline-variant dark:border-slate-700 rounded-lg">
+                    <label class="flex items-center gap-3 min-w-0 cursor-pointer flex-1">
+                        <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleQueueItem(${index})"
+                            class="rounded text-primary focus:ring-primary">
+                        <div class="min-w-0">
+                            <p class="font-semibold text-sm text-on-surface dark:text-white truncate">${escapeHtml(item.name)}</p>
+                            <p class="text-xs text-on-surface-variant dark:text-gray-400 truncate">${escapeHtml(item.code)} · ${escapeHtml(item.category || '-')}</p>
+                        </div>
+                    </label>
+                    <button onclick="removeFromQueue(${index})" class="p-1 hover:text-critical-rose text-on-surface-variant dark:text-slate-400 transition-colors">
+                        <span class="material-symbols-outlined text-sm block">delete</span>
+                    </button>
+                </li>`).join('');
+        }
+
+        window.toggleQueueItem = function(index) {
+            bulkQueue[index].checked = !bulkQueue[index].checked;
+            renderQueue();
+        };
+
+        window.removeFromQueue = function(index) {
+            bulkQueue.splice(index, 1);
+            renderQueue();
+            renderSearchResults();
+        };
+
+        chkSelectAll.addEventListener('change', () => {
+            const checked = chkSelectAll.checked;
+            bulkQueue.forEach(item => item.checked = checked);
+            renderQueue();
+        });
+
+        btnClearQueue.addEventListener('click', () => {
+            if (bulkQueue.length === 0) return;
+            bulkQueue = [];
+            renderQueue();
+            renderSearchResults();
+            showToast('Antrean dibersihkan.', 'info');
+        });
+
+        // PRINT IN BULK LOGIC
+        btnPrintBulk.addEventListener('click', async () => {
+            const selectedItems = bulkQueue.filter(q => q.checked);
+            if (selectedItems.length === 0) {
+                showToast('Pilih setidaknya satu barang untuk dicetak.', 'warning');
+                return;
+            }
+
+            // Print options
+            const cols = parseInt(document.getElementById('print-cols').value) || 3;
+            const size = document.getElementById('print-size').value;
+            const paper = document.getElementById('print-paper').value;
+            const showName = document.getElementById('show-print-name').checked;
+            const showCode = document.getElementById('show-print-code').checked;
+            const showLocation = document.getElementById('show-print-location').checked;
+            const showCategory = document.getElementById('show-print-category').checked;
+
+            let sizePx = 100;
+            if (size === 'sm') sizePx = 60;
+            else if (size === 'lg') sizePx = 150;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Cetak QR Code Massal</title>
+                    <style>
+                        @page {
+                            size: ${paper === 'continuous' ? 'auto' : paper};
+                            margin: 15mm;
+                        }
+                        body {
+                            margin: 0;
+                            font-family: system-ui, -apple-system, sans-serif;
+                            background: white;
+                            color: black;
+                        }
+                        .grid {
+                            display: grid;
+                            grid-template-columns: repeat(${cols}, 1fr);
+                            gap: 15px;
+                            padding: 10px;
+                        }
+                        .label-card {
+                            border: 1px dashed #ccc;
+                            padding: 10px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            text-align: center;
+                            box-sizing: border-box;
+                            page-break-inside: avoid;
+                        }
+                        .qr-canvas {
+                            width: ${sizePx}px;
+                            height: ${sizePx}px;
+                            margin-bottom: 5px;
+                        }
+                        .item-name {
+                            font-size: 10px;
+                            font-weight: bold;
+                            margin: 2px 0;
+                            max-width: 100%;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                        }
+                        .item-code {
+                            font-family: monospace;
+                            font-size: 9px;
+                            color: #333;
+                            margin: 1px 0;
+                        }
+                        .item-extra {
+                            font-size: 8px;
+                            color: #666;
+                            margin: 1px 0;
+                        }
+                        @media print {
+                            .label-card {
+                                border: 1px solid #eee;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="grid" id="print-grid"></div>
+                </body>
+                </html>
+            `);
+
+            const grid = printWindow.document.getElementById('print-grid');
+
+            // Generate QR codes for all items
+            for (const item of selectedItems) {
+                const card = printWindow.document.createElement('div');
+                card.className = 'label-card';
+
+                // Container for QR code image
+                const qrImg = printWindow.document.createElement('img');
+                qrImg.className = 'qr-canvas';
+
+                // Data inside QR Code
+                const qrData = {
+                    id: item.id,
+                    code: item.code,
+                    name: item.name,
+                    category: item.category,
+                    location: item.location,
+                    condition: item.condition
+                };
+
+                // Generate dynamic data URL
+                try {
+                    const dataUrl = await QRCode.toDataURL(JSON.stringify(qrData), {
+                        width: sizePx * 2, // higher resolution
+                        margin: 1
+                    });
+                    qrImg.src = dataUrl;
+                } catch (err) {
+                    console.error(err);
+                }
+
+                card.appendChild(qrImg);
+
+                if (showName) {
+                    const nameDiv = printWindow.document.createElement('div');
+                    nameDiv.className = 'item-name';
+                    nameDiv.textContent = item.name;
+                    card.appendChild(nameDiv);
+                }
+
+                if (showCode) {
+                    const codeDiv = printWindow.document.createElement('div');
+                    codeDiv.className = 'item-code';
+                    codeDiv.textContent = item.code;
+                    card.appendChild(codeDiv);
+                }
+
+                if (showCategory && item.category) {
+                    const catDiv = printWindow.document.createElement('div');
+                    catDiv.className = 'item-extra';
+                    catDiv.textContent = 'Kategori: ' + item.category;
+                    card.appendChild(catDiv);
+                }
+
+                if (showLocation && item.location) {
+                    const locDiv = printWindow.document.createElement('div');
+                    locDiv.className = 'item-extra';
+                    locDiv.textContent = 'Lokasi: ' + item.location;
+                    card.appendChild(locDiv);
+                }
+
+                grid.appendChild(card);
+            }
+
+            printWindow.document.close();
+            // Trigger print once DOM is complete
+            setTimeout(() => {
+                printWindow.focus();
+                printWindow.print();
+            }, 500);
+        });
+        
+        // Expose functions globally for dynamic elements
+        window.addToQueue = addToQueue;
+        window.toggleQueueItem = toggleQueueItem;
+        window.removeFromQueue = removeFromQueue;
+        window.escapeHtml = escapeHtml;
+
     </script>
 </body>
 </html>

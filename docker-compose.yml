@@ -44,6 +44,8 @@ services:
       JWT_EXPIRES_IN: 7d
       CORS_ORIGIN: http://localhost
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      FONNTE_TOKEN: SCSTfGGWCLSAa2rqLMFe
+      ADMIN_WA_NUMBER: "087854120561"
     ports:
       - "5001:5000"
     volumes:

@@ -204,6 +204,12 @@ const api = {
                 body: JSON.stringify(data),
             });
         },
+
+        async remind(id) {
+            return await api.request(`/loans/${id}/remind`, {
+                method: 'POST',
+            });
+        },
     },
 
     // Consumables endpoints
