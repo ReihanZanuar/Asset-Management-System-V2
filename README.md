@@ -604,7 +604,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👥 Authors
  
  - **Reihan Zanuar** - *Initial work* - [GitHub](https://github.com/ReihanZanuar)
- - **Antigravity AI** - *WhatsApp Notification, Bulk QR Code Printing, Stock Opname Bugs & Core Enhancements* - [Google DeepMind](https://deepmind.google)
 
 ---
 
