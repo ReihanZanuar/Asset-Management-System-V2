@@ -137,9 +137,36 @@ app.use(cors({
 }));
 ```
 
+### 5. WhatsApp Integration (Fonnte API)
+
+#### Error: `Fonnte failed to send message` atau tidak ada notifikasi masuk ke Admin
+
+**Penyebab A: Token salah atau kosong**
+- Fonnte API membutuhkan token autentikasi yang valid.
+- **Solusi**:
+  1. Buka dashboard Fonnte (`md.fonnte.com`) dan salin token aktif Anda.
+  2. Edit token di environment file `.env` atau `docker-compose.yml` (`FONNTE_TOKEN=...`).
+  3. Restart backend server / recreate docker containers.
+
+**Penyebab B: Device status Offline di Fonnte**
+- HP/Device yang digunakan sebagai pengirim WhatsApp harus terhubung/online.
+- **Solusi**:
+  1. Buka dashboard Fonnte.
+  2. Di menu **Device**, pastikan status device Anda adalah **connected**.
+  3. Jika offline, lakukan scan QR code ulang dari WhatsApp HP Anda.
+
+**Penyebab C: ADMIN_WA_NUMBER belum diset atau format salah**
+- Notifikasi dikirimkan ke nomor admin yang didefinisikan di environment.
+- **Solusi**:
+  1. Pastikan `ADMIN_WA_NUMBER` sudah diset di `.env` (lokal) atau `docker-compose.yml` (Docker).
+  2. Format nomor disarankan menggunakan format internasional atau lokal biasa (`0878...` atau `62878...`). Sistem akan menormalisasinya secara otomatis.
+
+**Penyebab D: Kuota/Quota Fonnte habis**
+- **Solusi**: Cek sisa kuota bulanan Anda di dashboard Fonnte.
+
 ---
 
-### 5. npm Errors
+### 6. npm Errors
 
 #### Error: `Cannot find module 'express'`
 
