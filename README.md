@@ -243,6 +243,7 @@ Default Credentials:
 - Return items with condition assessment
 - View overdue loans
 - Search by borrower or item
+- **WhatsApp Notification & Alert System**: Automatic alerts to admin on new loans, returns, and manual/bulk alerts for overdue loans.
 
 #### 4. Consumables Management
 - Add consumable items (name, quantity, unit, threshold)
@@ -250,11 +251,12 @@ Default Credentials:
 - Automatic low stock alerts
 - Track location and notes
 
-#### 5. OCR Scanning
+#### 5. OCR Scanning & Bulk QR Printing
 - Scan items using camera or upload images
 - Automatic item recognition via OCR
 - Quick item lookup and tracking
 - Real-time barcode/code recognition
+- **Bulk QR Code Printing**: Generate and print multiple asset QR codes at once with customizable label layouts.
 
 #### 6. Stock Audit/Opname
 - Create comprehensive inventory audits
@@ -627,9 +629,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Version 1.1 (In Progress)
 - [x] Export to Excel/PDF
 - [x] Barcode/QR code scanning (OCR)
-- [x] QR code generation for items
+- [x] QR code generation & Bulk QR Code Printing
 - [x] Stock audit/opname system
 - [x] Full-text search functionality
+- [x] WhatsApp Notification & Alert System (via Fonnte)
 - [ ] Email notifications for overdue loans
 - [ ] Advanced analytics charts
 - [ ] Mobile app PWA
